@@ -6,6 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
+    "db": "(docker ps --filter 'name=a-news-app-db' --format '{{.Names}}' | grep -q a-news-app-db && docker start a-news-app-db) || (docker ps -a --filter 'name=a-news-app-db' --format '{{.Names}}' | grep -q a-news-app-db && docker start a-news-app-db) || docker run --name a-news-app-db -p 5432:5432 -e POSTGRES_USER=postgres -e POSTGRES_PASSWORD=password -e POSTGRES_DB=a-news_db -d postgres",
+    "dockdev": "npm run db && next dev",
     "lint": "eslint"
   },
   "dependencies": {
