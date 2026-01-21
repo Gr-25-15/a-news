@@ -9,8 +9,8 @@
     "db": "(docker ps --filter 'name=a-news-app-db' --format '{{.Names}}' | grep -q a-news-app-db && docker start a-news-app-db) || (docker ps -a --filter 'name=a-news-app-db' --format '{{.Names}}' | grep -q a-news-app-db && docker start a-news-app-db) || docker run --name a-news-app-db -p 5432:5432 -e POSTGRES_USER=postgres -e POSTGRES_PASSWORD=password -e POSTGRES_DB=a-news_db -d postgres",
     "dockdev": "npm run db && next dev",
     "lint": "eslint",
-    "stripe": "dotenv -- docker run --rm -it -v \"$(pwd)/.stripe-config:/root/.config/stripe\" stripe/stripe-cli:latest",
-    "stripe:login": "dotenv -- docker run --rm -it -v \"$(pwd)/.stripe-config:/root/.config/stripe\" -e STRIPE_SECRET_KEY --entrypoint sh stripe/stripe-cli:latest -c 'stripe login --api-key \"$STRIPE_SECRET_KEY\"'"
+    "stripe": "dotenv -- node scripts/stripe.js",
+    "stripe:login": "dotenv -- node scripts/stripe.js login"
   },
   "dependencies": {
     "@base-ui/react": "^1.1.0",
