@@ -13,6 +13,8 @@
 # testing
 /coverage
 
+# Stripe volume
+/.stripe-config
 # next.js
 /.next/
 /out/
