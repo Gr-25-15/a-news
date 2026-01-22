@@ -12,6 +12,7 @@ const stripeClient = new Stripe(process.env.STRIPE_SECRET_KEY!, {
 });
 
 export const auth = betterAuth({
+  baseURL: process.env.BETTER_AUTH_URL,
   database: prismaAdapter(prisma, {
     provider: "postgresql",
   }),
@@ -24,4 +25,10 @@ export const auth = betterAuth({
     }),
     nextCookies(),
   ],
+  socialProviders: (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET) ? {
+    google: {
+      clientId: process.env.GOOGLE_CLIENT_ID,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+    },
+  } : undefined,
 });
