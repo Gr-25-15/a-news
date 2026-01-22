@@ -22,6 +22,17 @@ export const auth = betterAuth({
       stripeClient,
       stripeWebhookSecret: process.env.STRIPE_WEBHOOK_SECRET!,
       createCustomerOnSignUp: true,
+      subscription: {
+        enabled: true,
+        plans: async () => {
+          const plans = await prisma.plans.findMany();
+          return plans.map((plan) => ({
+            name: plan.name,
+            priceId: plan.priceId,
+            limits: plan.limits as Record<string, number>,
+          }));
+        },
+      },
     }),
     nextCookies(),
   ],
