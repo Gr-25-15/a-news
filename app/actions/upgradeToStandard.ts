@@ -4,7 +4,7 @@ import { auth } from "@/lib/auth"; // your Better Auth instance
 
 interface UpgradeResult {
   url?: string;
-  error?: Error;
+  error?: { message: string; name: string };
 }
 
 /**
