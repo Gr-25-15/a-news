@@ -10,6 +10,7 @@
     "db": "(docker ps --filter 'name=a-news-app-db' --format '{{.Names}}' | grep -q a-news-app-db && docker start a-news-app-db) || (docker ps -a --filter 'name=a-news-app-db' --format '{{.Names}}' | grep -q a-news-app-db && docker start a-news-app-db) || docker run --name a-news-app-db -p 5432:5432 -e POSTGRES_USER=postgres -e POSTGRES_PASSWORD=password -e POSTGRES_DB=a-news_db -d postgres",
     "dockdev": "npm run db && next dev",
     "lint": "eslint",
+    "postinstall": "prisma generate",
     "stripe": "dotenv -- node scripts/stripe.js",
     "stripe:login": "dotenv -- node scripts/stripe.js login"
   },
@@ -28,6 +29,7 @@
     "@prisma/adapter-pg": "^7.2.0",
     "@prisma/client": "^7.2.0",
     "ai": "^6.0.40",
+    "better-auth": "^1.4.17",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "cmdk": "^1.1.1",
