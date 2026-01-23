@@ -1,14 +1,6 @@
 "use client";
 
-import React, {
-  useState,
-  useEffect,
-  useMemo,
-  useRef,
-  forwardRef,
-  useCallback,
-  useImperativeHandle,
-} from "react";
+import React, { useState, useEffect, useMemo, useRef, forwardRef, useCallback, useImperativeHandle } from "react";
 import { createPortal } from "react-dom";
 import {
   // Core system
@@ -84,20 +76,9 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Toggle } from "@/components/ui/toggle";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-  TooltipProvider,
-} from "@/components/ui/tooltip";
+import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from "@/components/ui/tooltip";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
@@ -108,18 +89,8 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Switch } from "@/components/ui/switch";
-import {
-  Dialog as ShadcnDialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogFooter,
-} from "@/components/ui/dialog";
-import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from "@/components/ui/collapsible";
+import { Dialog as ShadcnDialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { Textarea } from "@/components/ui/textarea";
 import { shadcnTheme } from "./theme";
 import { cn } from "@/lib/utils";
@@ -280,10 +251,7 @@ type EditorStateQueries = ExtractStateQueries<typeof extensions>;
 type ExtensionNames = (typeof extensions)[number]["name"];
 
 // Custom hook for image handling
-function useImageHandlers(
-  commands: EditorCommands,
-  editor: LexicalEditor | null,
-) {
+function useImageHandlers(commands: EditorCommands, editor: LexicalEditor | null) {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handlers = useMemo(
@@ -375,9 +343,7 @@ function LinkDialog({
               type="url"
               placeholder="https://example.com"
               value={url}
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                setUrl(e.target.value)
-              }
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => setUrl(e.target.value)}
               onKeyDown={handleKeyDown}
               autoFocus
             />
@@ -495,12 +461,7 @@ function ImageDialog({
         </DialogHeader>
 
         <div className="space-y-4">
-          <Tabs
-            value={activeTab}
-            onValueChange={(value: string) =>
-              setActiveTab(value as "upload" | "url")
-            }
-          >
+          <Tabs value={activeTab} onValueChange={(value: string) => setActiveTab(value as "upload" | "url")}>
             <TabsList className="grid w-full grid-cols-2">
               <TabsTrigger value="upload" className="flex items-center gap-2">
                 <Upload className="h-4 w-4" />
@@ -528,12 +489,8 @@ function ImageDialog({
                     onClick={() => fileInputRef.current?.click()}
                   >
                     <CloudUpload className="h-8 w-8 mx-auto mb-2 text-muted-foreground" />
-                    <p className="text-sm text-muted-foreground mb-2">
-                      Drop an image here, or click to select
-                    </p>
-                    <p className="text-xs text-muted-foreground">
-                      Supports: JPG, PNG, GIF, WebP (max 10MB)
-                    </p>
+                    <p className="text-sm text-muted-foreground mb-2">Drop an image here, or click to select</p>
+                    <p className="text-xs text-muted-foreground">Supports: JPG, PNG, GIF, WebP (max 10MB)</p>
                   </div>
                 ) : (
                   <div className="border rounded-lg p-4 bg-muted/20">
@@ -548,12 +505,8 @@ function ImageDialog({
                         />
                       </div>
                       <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium truncate">
-                          {file.name}
-                        </p>
-                        <p className="text-xs text-muted-foreground">
-                          {(file.size / 1024 / 1024).toFixed(2)} MB
-                        </p>
+                        <p className="text-sm font-medium truncate">{file.name}</p>
+                        <p className="text-xs text-muted-foreground">{(file.size / 1024 / 1024).toFixed(2)} MB</p>
                       </div>
                       <Button
                         type="button"
@@ -567,13 +520,7 @@ function ImageDialog({
                     </div>
                   </div>
                 )}
-                <input
-                  ref={fileInputRef}
-                  type="file"
-                  accept="image/*"
-                  onChange={handleFileSelect}
-                  className="hidden"
-                />
+                <input ref={fileInputRef} type="file" accept="image/*" onChange={handleFileSelect} className="hidden" />
               </div>
             </TabsContent>
 
@@ -585,9 +532,7 @@ function ImageDialog({
                   type="url"
                   placeholder="https://example.com/image.jpg"
                   value={url}
-                  onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                    setUrl(e.target.value)
-                  }
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => setUrl(e.target.value)}
                   onKeyDown={handleKeyDown}
                 />
               </div>
@@ -595,25 +540,11 @@ function ImageDialog({
 
             {/* Advanced Options - only show when we have valid content */}
             {hasValidContent && (
-              <Collapsible
-                open={showAdvanced}
-                onOpenChange={setShowAdvanced}
-                className="mt-4"
-              >
+              <Collapsible open={showAdvanced} onOpenChange={setShowAdvanced} className="mt-4">
                 <CollapsibleTrigger asChild>
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    className="w-full justify-between p-2 h-auto"
-                  >
-                    <span className="text-sm font-medium">
-                      Advanced Options
-                    </span>
-                    <ChevronDown
-                      className={`h-4 w-4 transition-transform ${
-                        showAdvanced ? "rotate-180" : ""
-                      }`}
-                    />
+                  <Button type="button" variant="ghost" className="w-full justify-between p-2 h-auto">
+                    <span className="text-sm font-medium">Advanced Options</span>
+                    <ChevronDown className={`h-4 w-4 transition-transform ${showAdvanced ? "rotate-180" : ""}`} />
                   </Button>
                 </CollapsibleTrigger>
                 <CollapsibleContent className="space-y-4">
@@ -623,9 +554,7 @@ function ImageDialog({
                       id="image-alt"
                       placeholder="Describe the image for accessibility"
                       value={alt}
-                      onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                        setAlt(e.target.value)
-                      }
+                      onChange={(e: React.ChangeEvent<HTMLInputElement>) => setAlt(e.target.value)}
                     />
                   </div>
 
@@ -635,9 +564,7 @@ function ImageDialog({
                       id="image-caption"
                       placeholder="Image caption"
                       value={caption}
-                      onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                        setCaption(e.target.value)
-                      }
+                      onChange={(e: React.ChangeEvent<HTMLInputElement>) => setCaption(e.target.value)}
                     />
                   </div>
                 </CollapsibleContent>
@@ -651,10 +578,7 @@ function ImageDialog({
             <Button variant="outline" onClick={() => onOpenChange(false)}>
               Cancel
             </Button>
-            <Button
-              onClick={handleSubmit}
-              disabled={activeTab === "upload" ? !file : !url.trim()}
-            >
+            <Button onClick={handleSubmit} disabled={activeTab === "upload" ? !file : !url.trim()}>
               Insert Image
             </Button>
           </div>
@@ -665,18 +589,12 @@ function ImageDialog({
 }
 
 // Floating Toolbar Component
-function FloatingToolbarRenderer({
-  openLinkDialog,
-}: {
-  openLinkDialog: (options?: { initialUrl?: string }) => void;
-}) {
+function FloatingToolbarRenderer({ openLinkDialog }: { openLinkDialog: (options?: { initialUrl?: string }) => void }) {
   const { commands, activeStates, extensions, hasExtension } = useEditor();
   const [isVisible, setIsVisible] = useState(false);
   const [selectionRect, setSelectionRect] = useState<any>(null);
 
-  const floatingExtension = extensions.find(
-    (ext) => ext.name === "floatingToolbar",
-  ) as any;
+  const floatingExtension = extensions.find((ext) => ext.name === "floatingToolbar") as any;
 
   useEffect(() => {
     if (!floatingExtension) return;
@@ -703,9 +621,7 @@ function FloatingToolbarRenderer({
         style={{
           position: "absolute",
           top: selectionRect.y,
-          ...(selectionRect.positionFromRight
-            ? { right: 10, left: "auto" }
-            : { left: selectionRect.x, right: "auto" }),
+          ...(selectionRect.positionFromRight ? { right: 10, left: "auto" } : { left: selectionRect.x, right: "auto" }),
           zIndex: 50,
           pointerEvents: "auto",
         }}
@@ -716,9 +632,7 @@ function FloatingToolbarRenderer({
               <TooltipTrigger asChild>
                 <Toggle
                   size="sm"
-                  variant={
-                    activeStates.isImageAlignedLeft ? "outline" : "default"
-                  }
+                  variant={activeStates.isImageAlignedLeft ? "outline" : "default"}
                   pressed={activeStates.isImageAlignedLeft}
                   onPressedChange={() => commands.setImageAlignment("left")}
                 >
@@ -732,9 +646,7 @@ function FloatingToolbarRenderer({
               <TooltipTrigger asChild>
                 <Toggle
                   size="sm"
-                  variant={
-                    activeStates.isImageAlignedCenter ? "outline" : "default"
-                  }
+                  variant={activeStates.isImageAlignedCenter ? "outline" : "default"}
                   pressed={activeStates.isImageAlignedCenter}
                   onPressedChange={() => commands.setImageAlignment("center")}
                 >
@@ -748,9 +660,7 @@ function FloatingToolbarRenderer({
               <TooltipTrigger asChild>
                 <Toggle
                   size="sm"
-                  variant={
-                    activeStates.isImageAlignedRight ? "outline" : "default"
-                  }
+                  variant={activeStates.isImageAlignedRight ? "outline" : "default"}
                   pressed={activeStates.isImageAlignedRight}
                   onPressedChange={() => commands.setImageAlignment("right")}
                 >
@@ -858,9 +768,7 @@ function FloatingToolbarRenderer({
                   size="sm"
                   variant={activeStates.isLink ? "outline" : "default"}
                   pressed={activeStates.isLink}
-                  disabled={
-                    !activeStates.isTextSelected && !activeStates.isLink
-                  }
+                  disabled={!activeStates.isTextSelected && !activeStates.isLink}
                   onPressedChange={() => {
                     if (activeStates.isLink) {
                       commands.removeLink();
@@ -869,16 +777,10 @@ function FloatingToolbarRenderer({
                     }
                   }}
                 >
-                  {activeStates.isLink ? (
-                    <Unlink className="h-4 w-4" />
-                  ) : (
-                    <LinkIcon className="h-4 w-4" />
-                  )}
+                  {activeStates.isLink ? <Unlink className="h-4 w-4" /> : <LinkIcon className="h-4 w-4" />}
                 </Toggle>
               </TooltipTrigger>
-              <TooltipContent>
-                {activeStates.isLink ? "Remove Link" : "Add Link"}
-              </TooltipContent>
+              <TooltipContent>{activeStates.isLink ? "Remove Link" : "Add Link"}</TooltipContent>
             </Tooltip>
 
             <Separator orientation="vertical" className="h-6" />
@@ -925,14 +827,12 @@ function Toolbar({
   commands,
   hasExtension,
   activeStates,
-  onCommandPaletteOpen,
   openLinkDialog,
   openImageDialog,
 }: {
   commands: EditorCommands;
   hasExtension: (name: ExtensionNames) => boolean;
   activeStates: EditorStateQueries;
-  onCommandPaletteOpen: () => void;
   openLinkDialog: (options?: { initialUrl?: string }) => void;
   openImageDialog: () => void;
 }) {
@@ -963,8 +863,7 @@ function Toolbar({
 
   const handleBlockFormatChange = (value: string) => {
     if (value === "p") commands.toggleParagraph();
-    else if (value.startsWith("h"))
-      commands.toggleHeading(value as "h1" | "h2" | "h3");
+    else if (value.startsWith("h")) commands.toggleHeading(value as "h1" | "h2" | "h3");
     else if (value === "quote") commands.toggleQuote();
   };
 
@@ -1058,16 +957,10 @@ function Toolbar({
                   }
                 }}
               >
-                {activeStates.isLink ? (
-                  <Unlink className="h-4 w-4" />
-                ) : (
-                  <LinkIcon className="h-4 w-4" />
-                )}
+                {activeStates.isLink ? <Unlink className="h-4 w-4" /> : <LinkIcon className="h-4 w-4" />}
               </Toggle>
             </TooltipTrigger>
-            <TooltipContent>
-              {activeStates.isLink ? "Remove Link" : "Insert Link"}
-            </TooltipContent>
+            <TooltipContent>{activeStates.isLink ? "Remove Link" : "Insert Link"}</TooltipContent>
           </Tooltip>
         </div>
 
@@ -1076,10 +969,7 @@ function Toolbar({
         {/* Block Format Section */}
         {hasExtension("blockFormat") && (
           <div className="flex items-center gap-1">
-            <Select
-              value={currentBlockFormat}
-              onValueChange={handleBlockFormatChange}
-            >
+            <Select value={currentBlockFormat} onValueChange={handleBlockFormatChange}>
               <Tooltip>
                 <TooltipTrigger asChild>
                   <SelectTrigger className="w-32 h-8">
@@ -1139,11 +1029,7 @@ function Toolbar({
               <>
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <Button
-                      size="sm"
-                      variant="ghost"
-                      onClick={() => commands.indentList()}
-                    >
+                    <Button size="sm" variant="ghost" onClick={() => commands.indentList()}>
                       <Indent className="h-4 w-4" />
                     </Button>
                   </TooltipTrigger>
@@ -1152,11 +1038,7 @@ function Toolbar({
 
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <Button
-                      size="sm"
-                      variant="ghost"
-                      onClick={() => commands.outdentList()}
-                    >
+                    <Button size="sm" variant="ghost" onClick={() => commands.outdentList()}>
                       <Outdent className="h-4 w-4" />
                     </Button>
                   </TooltipTrigger>
@@ -1188,21 +1070,14 @@ function Toolbar({
             <>
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <Button
-                    size="sm"
-                    variant="ghost"
-                    onClick={() => setShowTableDialog(true)}
-                  >
+                  <Button size="sm" variant="ghost" onClick={() => setShowTableDialog(true)}>
                     <TableIcon className="h-4 w-4" />
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent>Insert Table</TooltipContent>
               </Tooltip>
 
-              <ShadcnDialog
-                open={showTableDialog}
-                onOpenChange={setShowTableDialog}
-              >
+              <ShadcnDialog open={showTableDialog} onOpenChange={setShowTableDialog}>
                 <DialogContent className="sm:max-w-md">
                   <DialogHeader>
                     <DialogTitle>Insert Table</DialogTitle>
@@ -1223,9 +1098,7 @@ function Toolbar({
                               rows: parseInt(e.target.value) || 1,
                             }))
                           }
-                          onKeyDown={(
-                            e: React.KeyboardEvent<HTMLInputElement>,
-                          ) => {
+                          onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => {
                             if (e.key === "Enter") {
                               e.preventDefault();
                               commands.insertTable(tableConfig);
@@ -1248,9 +1121,7 @@ function Toolbar({
                               columns: parseInt(e.target.value) || 1,
                             }))
                           }
-                          onKeyDown={(
-                            e: React.KeyboardEvent<HTMLInputElement>,
-                          ) => {
+                          onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => {
                             if (e.key === "Enter") {
                               e.preventDefault();
                               commands.insertTable(tableConfig);
@@ -1276,10 +1147,7 @@ function Toolbar({
                   </div>
                   <DialogFooter>
                     <div className="flex justify-end space-x-2">
-                      <Button
-                        variant="outline"
-                        onClick={() => setShowTableDialog(false)}
-                      >
+                      <Button variant="outline" onClick={() => setShowTableDialog(false)}>
                         Cancel
                       </Button>
                       <Button
@@ -1301,11 +1169,7 @@ function Toolbar({
           {hasExtension("horizontalRule") && (
             <Tooltip>
               <TooltipTrigger asChild>
-                <Button
-                  size="sm"
-                  variant="ghost"
-                  onClick={() => commands.insertHorizontalRule()}
-                >
+                <Button size="sm" variant="ghost" onClick={() => commands.insertHorizontalRule()}>
                   <Minus className="h-4 w-4" />
                 </Button>
               </TooltipTrigger>
@@ -1319,9 +1183,7 @@ function Toolbar({
               <TooltipTrigger asChild>
                 <Toggle
                   size="sm"
-                  variant={
-                    activeStates.isHTMLEmbedSelected ? "outline" : "default"
-                  }
+                  variant={activeStates.isHTMLEmbedSelected ? "outline" : "default"}
                   pressed={activeStates.isHTMLEmbedSelected}
                   onPressedChange={() => commands.insertHTMLEmbed()}
                 >
@@ -1340,12 +1202,7 @@ function Toolbar({
           <div className="flex items-center gap-1">
             <Tooltip>
               <TooltipTrigger asChild>
-                <Button
-                  size="sm"
-                  variant="ghost"
-                  disabled={!activeStates.canUndo}
-                  onClick={() => commands.undo()}
-                >
+                <Button size="sm" variant="ghost" disabled={!activeStates.canUndo} onClick={() => commands.undo()}>
                   <Undo className="h-4 w-4" />
                 </Button>
               </TooltipTrigger>
@@ -1354,12 +1211,7 @@ function Toolbar({
 
             <Tooltip>
               <TooltipTrigger asChild>
-                <Button
-                  size="sm"
-                  variant="ghost"
-                  disabled={!activeStates.canRedo}
-                  onClick={() => commands.redo()}
-                >
+                <Button size="sm" variant="ghost" disabled={!activeStates.canRedo} onClick={() => commands.redo()}>
                   <Redo className="h-4 w-4" />
                 </Button>
               </TooltipTrigger>
@@ -1387,18 +1239,9 @@ function Toolbar({
 }
 
 // Mode Tabs Component
-function ModeTabs({
-  mode,
-  onModeChange,
-}: {
-  mode: EditorMode;
-  onModeChange: (mode: EditorMode) => void;
-}) {
+function ModeTabs({ mode, onModeChange }: { mode: EditorMode; onModeChange: (mode: EditorMode) => void }) {
   return (
-    <Tabs
-      value={mode}
-      onValueChange={(value: string) => onModeChange(value as EditorMode)}
-    >
+    <Tabs value={mode} onValueChange={(value: string) => onModeChange(value as EditorMode)}>
       <TabsList className="grid w-full max-w-md grid-cols-3 bg-muted/50">
         <TabsTrigger value="visual" className="flex items-center gap-2 text-sm">
           <Eye className="h-4 w-4" />
@@ -1408,10 +1251,7 @@ function ModeTabs({
           <FileCode className="h-4 w-4" />
           HTML
         </TabsTrigger>
-        <TabsTrigger
-          value="markdown"
-          className="flex items-center gap-2 text-sm"
-        >
+        <TabsTrigger value="markdown" className="flex items-center gap-2 text-sm">
           <FileText className="h-4 w-4" />
           Markdown
         </TabsTrigger>
@@ -1421,13 +1261,7 @@ function ModeTabs({
 }
 
 // HTML Source View Component
-function HTMLSourceView({
-  htmlContent,
-  onHtmlChange,
-}: {
-  htmlContent: string;
-  onHtmlChange: (html: string) => void;
-}) {
+function HTMLSourceView({ htmlContent, onHtmlChange }: { htmlContent: string; onHtmlChange: (html: string) => void }) {
   return (
     <Textarea
       className={
@@ -1435,9 +1269,7 @@ function HTMLSourceView({
         "w-full h-full min-h-150 p-4 bg-background border-none rounded-none font-mono text-sm resize-none focus:outline-none focus:ring-0"
       }
       value={htmlContent}
-      onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
-        onHtmlChange(e.target.value)
-      }
+      onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => onHtmlChange(e.target.value)}
       placeholder="Enter HTML content..."
       spellCheck={false}
     />
@@ -1459,9 +1291,7 @@ function MarkdownSourceView({
         "w-full h-full min-h-150 p-4 bg-background border-none rounded-none font-mono text-sm resize-none focus:outline-none focus:ring-0"
       }
       value={markdownContent}
-      onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
-        onMarkdownChange(e.target.value)
-      }
+      onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => onMarkdownChange(e.target.value)}
       placeholder="Enter Markdown content..."
       spellCheck={false}
     />
@@ -1474,13 +1304,7 @@ function ErrorBoundary({ children }: { children: React.ReactNode }) {
 }
 
 // Main Editor Content Component
-function EditorContent({
-  className,
-  onReady,
-}: {
-  className?: string;
-  onReady?: (methods: ShadcnTemplateRef) => void;
-}) {
+function EditorContent({ className, onReady }: { className?: string; onReady?: (methods: ShadcnTemplateRef) => void }) {
   const { commands, hasExtension, activeStates, lexical: editor } = useEditor();
   const [mode, setMode] = useState<EditorMode>("visual");
   const [content, setContent] = useState({ html: "", markdown: "" });
@@ -1527,14 +1351,11 @@ function EditorContent({
 
   const { handlers: imageHandlers } = useImageHandlers(commands, editor);
 
-  const openLinkDialog = useCallback(
-    (options: { initialUrl?: string } = {}) => {
-      const { initialUrl = "" } = options;
-      setLinkInitial({ url: initialUrl });
-      setLinkDialogOpen(true);
-    },
-    [],
-  );
+  const openLinkDialog = useCallback((options: { initialUrl?: string } = {}) => {
+    const { initialUrl = "" } = options;
+    setLinkInitial({ url: initialUrl });
+    setLinkDialogOpen(true);
+  }, []);
 
   const handleLinkSubmit = useCallback(
     ({ url }: { url: string }) => {
@@ -1567,21 +1388,13 @@ function EditorContent({
   );
 
   const handleModeChange = (newMode: EditorMode) => {
-    if (
-      mode === "markdown" &&
-      newMode !== "markdown" &&
-      hasExtension("markdown")
-    ) {
+    if (mode === "markdown" && newMode !== "markdown" && hasExtension("markdown")) {
       commands.importFromMarkdown(content.markdown, { immediate: true });
     }
     if (mode === "html" && newMode !== "html" && hasExtension("html")) {
       commands.importFromHTML(content.html);
     }
-    if (
-      newMode === "markdown" &&
-      mode !== "markdown" &&
-      hasExtension("markdown")
-    ) {
+    if (newMode === "markdown" && mode !== "markdown" && hasExtension("markdown")) {
       setContent((prev) => ({
         ...prev,
         markdown: commands.exportToMarkdown(),
@@ -1596,11 +1409,9 @@ function EditorContent({
     }
   };
 
-  const handleHtmlChange = (html: string) =>
-    setContent((prev) => ({ ...prev, html }));
+  const handleHtmlChange = (html: string) => setContent((prev) => ({ ...prev, html }));
 
-  const handleMarkdownChange = (markdown: string) =>
-    setContent((prev) => ({ ...prev, markdown }));
+  const handleMarkdownChange = (markdown: string) => setContent((prev) => ({ ...prev, markdown }));
 
   return (
     <div className="flex flex-col min-h-125">
@@ -1617,7 +1428,6 @@ function EditorContent({
               commands={commands}
               hasExtension={hasExtension}
               activeStates={activeStates}
-              onCommandPaletteOpen={() => setCommandPaletteOpen(true)}
               openLinkDialog={openLinkDialog}
               openImageDialog={() => setImageDialogOpen(true)}
             />
@@ -1632,29 +1442,17 @@ function EditorContent({
           style={{ display: mode === "visual" ? "block" : "none" }}
         >
           <RichTextPlugin
-            contentEditable={
-              <ContentEditable className={shadcnTheme.contentEditable} />
-            }
-            placeholder={
-              <div className={shadcnTheme.placeholder}>Start typing...</div>
-            }
+            contentEditable={<ContentEditable className={shadcnTheme.contentEditable} />}
+            placeholder={<div className={shadcnTheme.placeholder}>Start typing...</div>}
             ErrorBoundary={ErrorBoundary}
           />
           <FloatingToolbarRenderer openLinkDialog={openLinkDialog} />
         </div>
 
-        {mode === "html" && (
-          <HTMLSourceView
-            htmlContent={content.html}
-            onHtmlChange={handleHtmlChange}
-          />
-        )}
+        {mode === "html" && <HTMLSourceView htmlContent={content.html} onHtmlChange={handleHtmlChange} />}
 
         {mode === "markdown" && (
-          <MarkdownSourceView
-            markdownContent={content.markdown}
-            onMarkdownChange={handleMarkdownChange}
-          />
+          <MarkdownSourceView markdownContent={content.markdown} onMarkdownChange={handleMarkdownChange} />
         )}
       </div>
 
@@ -1666,11 +1464,7 @@ function EditorContent({
         onSubmit={handleLinkSubmit}
       />
 
-      <ImageDialog
-        isOpen={imageDialogOpen}
-        onOpenChange={setImageDialogOpen}
-        onSubmit={handleImageSubmit}
-      />
+      <ImageDialog isOpen={imageDialogOpen} onOpenChange={setImageDialogOpen} onSubmit={handleImageSubmit} />
     </div>
   );
 }
@@ -1681,13 +1475,8 @@ interface ShadcnTemplateProps {
   onReady?: (methods: ShadcnTemplateRef) => void;
 }
 
-export const ShadcnTemplate = forwardRef<
-  ShadcnTemplateRef,
-  ShadcnTemplateProps
->(({ className, onReady }, ref) => {
-  const [editorMethods, setEditorMethods] = useState<ShadcnTemplateRef | null>(
-    null,
-  );
+export const ShadcnTemplate = forwardRef<ShadcnTemplateRef, ShadcnTemplateProps>(({ className, onReady }, ref) => {
+  const [editorMethods, setEditorMethods] = useState<ShadcnTemplateRef | null>(null);
 
   // Configure image extension
   useEffect(() => {
@@ -1716,8 +1505,7 @@ export const ShadcnTemplate = forwardRef<
   useImperativeHandle(
     ref,
     () => ({
-      injectMarkdown: (content: string) =>
-        editorMethods?.injectMarkdown(content),
+      injectMarkdown: (content: string) => editorMethods?.injectMarkdown(content),
       injectHTML: (content: string) => editorMethods?.injectHTML(content),
       getMarkdown: () => editorMethods?.getMarkdown() || "",
       getHTML: () => editorMethods?.getHTML() || "",
