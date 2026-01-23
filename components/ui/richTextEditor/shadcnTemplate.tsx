@@ -85,15 +85,6 @@ import {
 import { Button } from "@/components/ui/button";
 import { Toggle } from "@/components/ui/toggle";
 import {
-  CommandDialog,
-  CommandEmpty,
-  CommandGroup,
-  CommandInput,
-  CommandItem,
-  CommandList,
-  CommandShortcut,
-} from "@/components/ui/command";
-import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
@@ -130,10 +121,6 @@ import {
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
 import { Textarea } from "@/components/ui/textarea";
-import {
-  commandsToCommandPaletteItems,
-  registerKeyboardShortcuts,
-} from "./commands";
 import { shadcnTheme } from "./theme";
 import { cn } from "@/lib/utils";
 import "./shadcn-styles.css";
@@ -1384,17 +1371,17 @@ function Toolbar({
         <Separator orientation="vertical" className="h-6" />
 
         {/* Utility Section */}
-      {/*   <div className="flex items-center gap-1"> */}
-      {/*     <Tooltip> */}
-      {/*       <TooltipTrigger asChild> */}
-      {/*         <Button size="sm" variant="ghost" onClick={onCommandPaletteOpen}> */}
-      {/*           <CommandIcon className="h-4 w-4" /> */}
-      {/*         </Button> */}
-      {/*       </TooltipTrigger> */}
-      {/*       <TooltipContent>Command Palette (Ctrl+K)</TooltipContent> */}
-      {/*     </Tooltip> */}
-      {/*   </div> */}
-      {/* </div> */}
+        {/*   <div className="flex items-center gap-1"> */}
+        {/*     <Tooltip> */}
+        {/*       <TooltipTrigger asChild> */}
+        {/*         <Button size="sm" variant="ghost" onClick={onCommandPaletteOpen}> */}
+        {/*           <CommandIcon className="h-4 w-4" /> */}
+        {/*         </Button> */}
+        {/*       </TooltipTrigger> */}
+        {/*       <TooltipContent>Command Palette (Ctrl+K)</TooltipContent> */}
+        {/*     </Tooltip> */}
+        {/*   </div> */}
+      </div>
     </TooltipProvider>
   );
 }
@@ -1497,7 +1484,6 @@ function EditorContent({
   const { commands, hasExtension, activeStates, lexical: editor } = useEditor();
   const [mode, setMode] = useState<EditorMode>("visual");
   const [content, setContent] = useState({ html: "", markdown: "" });
-  const [commandPaletteOpen, setCommandPaletteOpen] = useState(false);
   const [linkDialogOpen, setLinkDialogOpen] = useState(false);
   const [imageDialogOpen, setImageDialogOpen] = useState(false);
   const [linkInitial, setLinkInitial] = useState({ url: "" });
@@ -1579,39 +1565,6 @@ function EditorContent({
     },
     [imageHandlers],
   );
-
-  useEffect(() => {
-    if (!editor || !commands || readyCalledRef.current) return;
-
-    const paletteCommands = commandsToCommandPaletteItems(commands);
-    paletteCommands.forEach((cmd) => commands.registerCommand(cmd));
-
-    const originalShowCommand = commands.showCommandPalette;
-    (commands as any).showCommandPalette = () => setCommandPaletteOpen(true);
-
-    const unregisterShortcuts = registerKeyboardShortcuts(
-      commands,
-      document.body,
-    );
-
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if ((e.ctrlKey || e.metaKey) && e.key === "k") {
-        e.preventDefault();
-        setCommandPaletteOpen(true);
-      }
-    };
-    document.addEventListener("keydown", handleKeyDown);
-
-    // Call onReady only once
-    readyCalledRef.current = true;
-    onReadyRef.current?.(methods);
-
-    return () => {
-      unregisterShortcuts();
-      document.removeEventListener("keydown", handleKeyDown);
-      (commands as any).showCommandPalette = originalShowCommand;
-    };
-  }, [editor, commands, methods]); // Only depend on editor and commands
 
   const handleModeChange = (newMode: EditorMode) => {
     if (
@@ -1718,48 +1671,6 @@ function EditorContent({
         onOpenChange={setImageDialogOpen}
         onSubmit={handleImageSubmit}
       />
-
-      {/* Command Palette */}
-      <CommandDialog
-        open={commandPaletteOpen}
-        onOpenChange={setCommandPaletteOpen}
-      >
-        <CommandInput placeholder="Type a command or search..." />
-        <CommandList>
-          <CommandEmpty>No results found.</CommandEmpty>
-          {Object.entries(
-            commandsToCommandPaletteItems(commands).reduce(
-              (groups, cmd) => {
-                const category = cmd.category || "Other";
-                if (!groups[category]) groups[category] = [];
-                groups[category].push(cmd);
-                return groups;
-              },
-              {} as Record<
-                string,
-                ReturnType<typeof commandsToCommandPaletteItems>
-              >,
-            ),
-          ).map(([category, categoryCommands]) => (
-            <CommandGroup key={category} heading={category}>
-              {categoryCommands.map((cmd: any) => (
-                <CommandItem
-                  key={cmd.id}
-                  onSelect={() => {
-                    cmd.action();
-                    setCommandPaletteOpen(false);
-                  }}
-                >
-                  {cmd.label}
-                  {cmd.shortcut && (
-                    <CommandShortcut>{cmd.shortcut}</CommandShortcut>
-                  )}
-                </CommandItem>
-              ))}
-            </CommandGroup>
-          ))}
-        </CommandList>
-      </CommandDialog>
     </div>
   );
 }
