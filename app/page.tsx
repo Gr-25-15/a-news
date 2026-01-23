@@ -5,8 +5,10 @@ import { ComponentExample } from "@/components/component-example";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 
+import type { StockData } from "./actions/getStock";
+
 export default function Page() {
-  const [stockData, setStockData] = useState<any>(null);
+  const [stockData, setStockData] = useState<StockData | null>(null);
 
   return (
     <>

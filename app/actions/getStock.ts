@@ -2,7 +2,32 @@
 
 import { unstable_cache } from "next/cache";
 
-export async function getCompanyStock(symbol: string) {
+// The raw shape from Finnhub
+interface FinnhubQuote {
+  c: number; // Current price
+  d: number; // Change
+  dp: number; // Percent change
+  h: number; // High price of the day
+  l: number; // Low price of the day
+  o: number; // Open price of the day
+  pc: number; // Previous close price
+  t: number; // Timestamp
+}
+
+// The friendly shape for your app
+export interface StockData {
+  currentPrice: number;
+  change: number;
+  percentChange: number;
+  highPrice: number;
+  lowPrice: number;
+  openPrice: number;
+  previousClose: number;
+  timestamp: number;
+  cachedAt: string;
+}
+
+export async function getCompanyStock(symbol: string): Promise<StockData> {
   const getCachedStock = unstable_cache(
     async (s: string) => {
       const apiKey = process.env.FINNHUB_API_KEY;
@@ -20,15 +45,27 @@ export async function getCompanyStock(symbol: string) {
       }
 
       try {
-        const data = JSON.parse(text);
-        return { ...data, cachedAt: new Date().toISOString() };
+        const rawData: FinnhubQuote = JSON.parse(text);
+
+        // Map cryptic keys to friendly names
+        return {
+          currentPrice: rawData.c,
+          change: rawData.d,
+          percentChange: rawData.dp,
+          highPrice: rawData.h,
+          lowPrice: rawData.l,
+          openPrice: rawData.o,
+          previousClose: rawData.pc,
+          timestamp: rawData.t,
+          cachedAt: new Date().toISOString(),
+        };
       } catch (e) {
         console.error("Failed to parse Finnhub response as JSON:", text);
         throw new Error("Invalid JSON response from Finnhub");
       }
     },
     ["stock-data"], // Cache key prefix
-    { revalidate: 60, tags: ["stock-data"] }
+    { revalidate: 60, tags: ["stock-data"] },
   );
 
   return getCachedStock(symbol);
