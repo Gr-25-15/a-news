@@ -1,5 +1,5 @@
-import { finnhub } from "finnhub";
 import { NextRequest, NextResponse } from "next/server";
+import { finnhub } from "finnhub";
 
 const finnhubClient = new finnhub.DefaultApi(process.env.FINNHUB_API_KEY || "");
 
@@ -13,7 +13,7 @@ export async function GET(request: NextRequest) {
 
   try {
     const stockData = await new Promise((resolve, reject) => {
-      finnhubClient.quote(symbol, (error: any, data: any, response: any) => {
+      finnhubClient.quote(symbol, (error, data, response) => {
         if (error) {
           reject(error);
         } else {
