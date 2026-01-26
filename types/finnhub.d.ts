@@ -1,17 +1,13 @@
 declare module "finnhub" {
-  export namespace finnhub {
-    export class DefaultApi {
-      constructor(apiKey: string);
-      /**
-       * Get real-time quotes for symbols.
-       * @param symbol Symbol
-       * @param callback Callback function
-       */
-      quote(
-        symbol: string,
-        callback: (error: Error | null, data: FinnhubQuote, response: FinnhubResponse) => void,
-      ): void;
-    }
+  export class DefaultApi {
+    constructor(apiKey: string);
+
+    /**
+     * Get real-time quotes for symbols.
+     * @param symbol Symbol
+     * @param callback Callback function
+     */
+    quote(symbol: string, callback: (error: Error | null, data: FinnhubQuote, response: FinnhubResponse) => void): void;
   }
 
   export interface FinnhubQuote {

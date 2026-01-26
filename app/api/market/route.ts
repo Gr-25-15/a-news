@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { finnhub } from "finnhub";
+import * as finnhub from "finnhub";
 
 const finnhubClient = new finnhub.DefaultApi(process.env.FINNHUB_API_KEY || "");
 
