@@ -63,7 +63,7 @@ export default function WeatherComponent() {
                 <h2 className="font-semibold truncate">
                   {weather.location.name}
                 </h2>
-                <Icon className="w-6 h-86flex-shrink-0" />
+                <Icon className="w-6 h-6 shrink-0" />
               </div>
               <p className="font-extralight">{weather.timeseries[0].summary}</p>
               <p>Temperature: {weather.timeseries[0].temp}°C</p>
