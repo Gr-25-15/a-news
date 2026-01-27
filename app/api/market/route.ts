@@ -1,7 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
 import * as finnhub from "finnhub";
 
-const finnhubClient = new finnhub.DefaultApi(process.env.FINNHUB_API_KEY || "");
+const apiKey = process.env.FINNHUB_API_KEY;
+if (!apiKey) {
+  return new Response("Server misconfiguration: API Key missing", {
+    status: 500,
+  });
+}
+
+const finnhubClient = new finnhub.DefaultApi(apiKey);
 
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
@@ -25,6 +32,9 @@ export async function GET(request: NextRequest) {
     return NextResponse.json(stockData);
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
-    return new Response(JSON.stringify({ error: "Error fetching stock data", details: message }), { status: 500 });
+    return new Response(
+      JSON.stringify({ error: "Error fetching stock data", details: message }),
+      { status: 500 },
+    );
   }
 }
