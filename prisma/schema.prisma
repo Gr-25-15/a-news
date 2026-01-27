@@ -112,7 +112,7 @@ model Article {
   id         String   @id
   title      String
   type       String?
-  userId     String?
+  userId     String
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
   categoryId String
@@ -120,14 +120,14 @@ model Article {
   contentUrl String
   editorId   String?
 
-  Category Category? @relation(fields: [categoryId], references: [id])
-  Author   User?     @relation(name: "Author", fields: [authorId], references: [id])
-  Editor   User?     @relation(name: "Editor", fields: [editorId], references: [id])
+  Category Category @relation(fields: [categoryId], references: [id])
+  Author   User     @relation(name: "Author", fields: [authorId], references: [id])
+  Editor   User?    @relation(name: "Editor", fields: [editorId], references: [id])
 }
 
 model Category {
   id   String @id
-  name String
+  name String @unique
 
   articles Article[]
 }
