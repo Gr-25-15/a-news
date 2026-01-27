@@ -8,15 +8,19 @@ datasource db {
 }
 
 model User {
-  id            String    @id
+  id            String   @id
   name          String
   email         String
-  emailVerified Boolean   @default(false)
+  emailVerified Boolean  @default(false)
   image         String?
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
-  sessions      Session[]
-  accounts      Account[]
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  sessions       Session[]
+  accounts       Account[]
+  articles       Article[] @relation("Author")
+  editedArticles Article[] @relation("Editor")
+  address        Address?
 
   role             String?
   banned           Boolean?  @default(false)
@@ -102,4 +106,40 @@ model Plans {
   name    String @id
   priceId String @unique
   limits  Json
+}
+
+model Article {
+  id         String   @id
+  title      String
+  type       String?
+  userId     String
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  categoryId String
+  authorId   String
+  contentUrl String
+  editorId   String?
+
+  Category Category @relation(fields: [categoryId], references: [id])
+  Author   User     @relation(name: "Author", fields: [authorId], references: [id])
+  Editor   User?    @relation(name: "Editor", fields: [editorId], references: [id])
+}
+
+model Category {
+  id   String @id
+  name String @unique
+
+  articles Article[]
+}
+
+model Address {
+  id      String @id
+  street  String
+  city    String
+  state   String
+  zip     String
+  country String
+  userId  String @unique
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
