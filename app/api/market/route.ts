@@ -2,15 +2,16 @@ import { NextRequest, NextResponse } from "next/server";
 import * as finnhub from "finnhub";
 
 const apiKey = process.env.FINNHUB_API_KEY;
-if (!apiKey) {
-  return new Response("Server misconfiguration: API Key missing", {
-    status: 500,
-  });
-}
-
-const finnhubClient = new finnhub.DefaultApi(apiKey);
 
 export async function GET(request: NextRequest) {
+  if (!apiKey) {
+    return new Response("Server misconfiguration: API Key missing", {
+      status: 500,
+    });
+  }
+
+  const finnhubClient = new finnhub.DefaultApi(apiKey);
+
   const { searchParams } = new URL(request.url);
   const symbol = searchParams.get("symbol");
 
