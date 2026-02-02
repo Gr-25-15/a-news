@@ -2,9 +2,10 @@
 
 import { PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
+import { auth } from "./auth";
 
 const s3Client = new S3Client({
-  region: process.env.S3_REGION || "",
+  region: process.env.S3_REGION!,
   endpoint: process.env.S3_ENDPOINT,
   credentials: {
     accessKeyId: process.env.S3_ACCESS_KEY_ID!,
@@ -14,6 +15,11 @@ const s3Client = new S3Client({
 });
 
 export async function getUploadUrl(filename: string, contentType: string) {
+  const session = auth.api.getSession();
+  if (!session) {
+    return undefined;
+  }
+
   const key = `articles/${Date.now()}-${filename}`;
 
   const command = new PutObjectCommand({
