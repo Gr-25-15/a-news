@@ -7,6 +7,7 @@ import { Card } from "@/components/ui/card";
 import { ShadcnTemplate } from "@/components/ui/richTextEditor/shadcnTemplate";
 
 import type { StockData } from "./actions/getStock";
+import AiComponent from "@/components/ai-component";
 
 export default function Page() {
   const [stockData, setStockData] = useState<StockData | null>(null);
@@ -28,6 +29,10 @@ export default function Page() {
           </Button>
           {stockData && <pre>{JSON.stringify(stockData, null, 2)}</pre>}
         </div>
+      </Card>
+
+      <Card className="p-4 mb-4 w-md m-auto">
+        <AiComponent />
       </Card>
       <ShadcnTemplate />
     </>
