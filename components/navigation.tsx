@@ -126,10 +126,14 @@ export default function Navigation({
               </NavigationMenuLink>
             </NavigationMenuItem> */}
             <NavigationMenuItem className="ml-15">
-              <Button variant={"ghost"}>Sign In</Button>
+              <Button variant={"ghost"}>
+                <Link href={"/auth/sign-in"}>Sign In</Link>
+              </Button>
             </NavigationMenuItem>
             <NavigationMenuItem>
-              <Button>Sign Up</Button>
+              <Button>
+                <Link href={"/auth/sign-up"}>Sign Up</Link>
+              </Button>
             </NavigationMenuItem>
           </NavigationMenuList>
         </NavigationMenu>
@@ -153,6 +157,12 @@ export default function Navigation({
                   {cat.title}
                 </Link>
               ))}
+              <Button variant={"ghost"}>
+                <Link href={"/auth/sign-in"}>Sign In</Link>
+              </Button>
+              <Button>
+                <Link href={"/auth/sign-up"}>Sign Up</Link>
+              </Button>
             </nav>
           </SheetContent>
         </Sheet>
