@@ -28,3 +28,4 @@ export async function getLatestNewsTopics(count: number = 5) {
     .filter((line) => line.length > 0)
     .slice(0, count);
 }
+

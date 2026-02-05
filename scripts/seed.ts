@@ -3,6 +3,7 @@ config();
 
 import prisma from "@/lib/prisma";
 import { generateArticle, getLatestNewsTopics } from "@/lib/ai";
+import { parseArticleResponse } from "@/lib/utils";
 import { s3Client, S3_BUCKET } from "@/lib/s3";
 import {
   DeleteObjectsCommand,
@@ -121,17 +122,7 @@ This is a fallback article about ${topic}. The AI generation was unavailable at 
 Sweden continues to be a leader in this area, and further developments are expected soon.`;
         }
 
-        // Parse
-        const titleMatch = generatedText.match(/TITLE:\s*(.+)/);
-        const contentMatch = generatedText.match(/CONTENT:\s*([\s\S]*)/);
-
-        if (!titleMatch || !contentMatch) {
-          console.warn(`Failed to parse generated text for topic: ${topic}`);
-          continue;
-        }
-
-        const title = titleMatch[1].trim();
-        const content = contentMatch[1].trim();
+        const { title, content } = parseArticleResponse(generatedText);
 
         const slug = title
           .toLowerCase()

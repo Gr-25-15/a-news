@@ -1,6 +1,4 @@
-"use server";
-
-import { PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
+import { GetObjectCommand, PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { auth } from "./auth";
 import https from "https";
@@ -21,6 +19,17 @@ export const s3Client = new S3Client({
 });
 
 export const S3_BUCKET = process.env.S3_BUCKET!;
+
+export async function getS3Content(key: string): Promise<string> {
+  const command = new GetObjectCommand({
+    Bucket: S3_BUCKET,
+    Key: key,
+  });
+
+  const response = await s3Client.send(command);
+  const bodyContents = await response.Body?.transformToString();
+  return bodyContents || "";
+}
 
 export async function getUploadUrl(filename: string, contentType: string) {
   const session = auth.api.getSession();
