@@ -3,10 +3,25 @@
 import { google } from "@ai-sdk/google";
 import { generateText } from "ai";
 
-export async function generateArticle(prompt: string) {
+const ARTICLE_PROMPT = (topic: string) =>
+  `
+Write a professional news article about "${topic}".
+The content should be relevant to Sweden.
+
+The output must be strictly in the following format:
+TITLE: [The Title]
+CONTENT:
+# [The Title]
+[Lead Paragraph in **bold**]
+
+## [Sub-header]
+[Article body with at least two sections, using markdown for *emphasis* and list items if relevant.]
+`.trim();
+
+export async function generateArticle(topic: string) {
   const { text } = await generateText({
     model: google("gemini-2.5-flash-lite"),
-    prompt,
+    prompt: ARTICLE_PROMPT(topic),
   });
   return text;
 }
@@ -28,4 +43,3 @@ export async function getLatestNewsTopics(count: number = 5) {
     .filter((line) => line.length > 0)
     .slice(0, count);
 }
-

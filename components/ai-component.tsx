@@ -30,6 +30,7 @@ export default function AiComponent() {
       try {
         const data = await getArticlesWithContent();
         setArticles(data);
+        console.log("Fetched articles:", data);
       } catch (err) {
         console.error("Failed to fetch articles:", err);
       } finally {
@@ -81,9 +82,6 @@ export default function AiComponent() {
         ) : (
           articles.map((art) => (
             <div key={art.id} className="group relative flex flex-col gap-4">
-              <h3 className="text-3xl font-bold group-hover:text-primary transition-colors">
-                {art.title}
-              </h3>
               <article className="prose prose-slate dark:prose-invert max-w-none prose-p:text-gray-600 dark:prose-p:text-gray-300">
                 <Markdown remarkPlugins={[remarkGfm]}>{art.content}</Markdown>
               </article>

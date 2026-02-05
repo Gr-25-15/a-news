@@ -99,16 +99,9 @@ async function main() {
     for (const topic of batch) {
       console.log(`- ${topic}`);
       try {
-        const prompt = `Write a short news article about "${topic}".
-      The content should be relevant to Sweden.
-      The output must be strictly in the following format:
-      TITLE: [The Title]
-      CONTENT:
-      [The Article Content in Markdown]`;
-
         let generatedText;
         try {
-          generatedText = await generateArticle(prompt);
+          generatedText = await generateArticle(topic);
           // Small delay to respect rate limits even with batching
           await new Promise((resolve) => setTimeout(resolve, 2000));
         } catch (aiErr) {
@@ -117,8 +110,10 @@ async function main() {
           );
           generatedText = `TITLE: ${topic}
 CONTENT:
-This is a fallback article about ${topic}. The AI generation was unavailable at the time of seeding. 
+# ${topic}
+**This is a fallback article about ${topic}.** The AI generation was unavailable at the time of seeding. 
         
+## Background
 Sweden continues to be a leader in this area, and further developments are expected soon.`;
         }
 
