@@ -10,6 +10,7 @@ import {
   ListObjectsV2Command,
   PutObjectCommand,
 } from "@aws-sdk/client-s3";
+import { randomUUID } from "crypto";
 
 const CATEGORIES = ["Sweden", "World", "Technology", "Sports", "Culture"];
 
@@ -109,12 +110,12 @@ async function main() {
             `AI Generation failed for "${topic}", using fallback content. (Reason: ${aiErr instanceof Error ? aiErr.message : "Unknown"})`,
           );
           generatedText = `TITLE: ${topic}
-CONTENT:
-# ${topic}
-**This is a fallback article about ${topic}.** The AI generation was unavailable at the time of seeding. 
+          CONTENT:
+          # ${topic}
+          **This is a fallback article about ${topic}.** The AI generation was unavailable at the time of seeding. 
         
-## Background
-Sweden continues to be a leader in this area, and further developments are expected soon.`;
+          ## Background
+          Sweden continues to be a leader in this area, and further developments are expected soon.`;
         }
 
         const { title, content } = parseArticleResponse(generatedText);
@@ -148,7 +149,7 @@ Sweden continues to be a leader in this area, and further developments are expec
         // Create Article in DB
         await prisma.article.create({
           data: {
-            id: slug + "-" + Math.floor(Math.random() * 100000),
+            id: randomUUID(),
             title: title,
             contentUrl: contentUrl,
             categoryId: categoryId!,
