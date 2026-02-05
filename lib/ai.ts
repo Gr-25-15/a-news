@@ -5,7 +5,7 @@ import { generateText } from "ai";
 
 const ARTICLE_PROMPT = (topic: string) =>
   `
-Write a professional news article about the following topic: {{topic}}.
+Write a professional news article about the following topic: ${topic}.
 The content should be relevant to Sweden.
 
 The output must be strictly in the following format:
