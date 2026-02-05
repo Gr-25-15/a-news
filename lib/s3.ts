@@ -13,7 +13,7 @@ export const s3Client = new S3Client({
   forcePathStyle: true,
   requestHandler: {
     httpsAgent: new https.Agent({
-      rejectUnauthorized: false,
+rejectUnauthorized: process.env.NODE_ENV === 'development' ? false : true,
     }),
   },
 });
