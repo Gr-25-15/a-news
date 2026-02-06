@@ -125,6 +125,7 @@ import { shadcnTheme } from "./theme";
 import { cn } from "@/lib/utils";
 import "./shadcn-styles.css";
 import Image from "next/image";
+import { getUploadUrlAction } from "@/app/actions/getUploadUrlAction";
 
 // Editor Mode Types
 type EditorMode = "visual" | "html" | "markdown";
@@ -1696,8 +1697,36 @@ export const ShadcnTemplate = forwardRef<
   useEffect(() => {
     imageExtension.configure({
       uploadHandler: async (file: File) => {
-        const objectUrl = URL.createObjectURL(file);
-        return objectUrl;
+        try {
+          // 1. Get presigned URL from our server action
+          const { success, uploadUrl, fileUrl, error } =
+            await getUploadUrlAction(file.name, file.type);
+
+          if (error || !success) {
+            console.error("Failed to get presigned URL:", error);
+            throw new Error("Could not get an upload URL.");
+          }
+
+          // 2. Upload the file directly to S3 using the presigned URL
+          const uploadResponse = await fetch(uploadUrl, {
+            method: "PUT",
+            body: file,
+            headers: {
+              "Content-Type": file.type,
+            },
+          });
+
+          if (!uploadResponse.ok) {
+            throw new Error(`S3 upload failed: ${uploadResponse.statusText}`);
+          }
+
+          // 3. Return the public, permanent URL of the file
+          return fileUrl;
+        } catch (err) {
+          console.error("Image upload failed:", err);
+          // Fallback to blob URL on error to avoid breaking editor
+          return URL.createObjectURL(file);
+        }
       },
       defaultAlignment: "center",
       resizable: true,

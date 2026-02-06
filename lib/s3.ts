@@ -1,4 +1,8 @@
-import { GetObjectCommand, PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
+import {
+  GetObjectCommand,
+  PutObjectCommand,
+  S3Client,
+} from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { auth } from "./auth";
 import https from "https";
@@ -13,7 +17,7 @@ export const s3Client = new S3Client({
   forcePathStyle: true,
   requestHandler: {
     httpsAgent: new https.Agent({
-rejectUnauthorized: process.env.NODE_ENV === 'development' ? false : true,
+      rejectUnauthorized: process.env.NODE_ENV === "development" ? false : true,
     }),
   },
 });
@@ -43,6 +47,7 @@ export async function getUploadUrl(filename: string, contentType: string) {
     Bucket: process.env.S3_BUCKET!,
     Key: key,
     ContentType: contentType,
+    ACL: "public-read",
   });
 
   const signedUrl = await getSignedUrl(s3Client, command, { expiresIn: 3600 });
