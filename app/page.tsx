@@ -8,6 +8,7 @@ import { ShadcnTemplate } from "@/components/ui/richTextEditor/shadcnTemplate";
 
 import type { StockData } from "./actions/getStock";
 import AiComponent from "@/components/ai-component";
+import CreateArticle from "@/components/create-article-form";
 
 export default function Page() {
   const [stockData, setStockData] = useState<StockData | null>(null);
@@ -34,7 +35,7 @@ export default function Page() {
       <Card className="p-4 mb-4 w-md m-auto">
         <AiComponent />
       </Card>
-      <ShadcnTemplate />
+      <CreateArticle />
     </>
   );
 }
