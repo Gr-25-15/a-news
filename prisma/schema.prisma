@@ -109,7 +109,7 @@ model Plans {
 }
 
 model Article {
-  id            String   @id
+  id            String   @id @default(uuid())
   title         String
   type          String?
   userId        String
