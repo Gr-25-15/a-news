@@ -4,7 +4,6 @@ import { getCompanyStock } from "./actions/getStock";
 import { ComponentExample } from "@/components/component-example";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { ShadcnTemplate } from "@/components/ui/richTextEditor/shadcnTemplate";
 
 import type { StockData } from "./actions/getStock";
 import AiComponent from "@/components/ai-component";

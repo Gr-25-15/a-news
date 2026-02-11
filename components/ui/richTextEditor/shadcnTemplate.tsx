@@ -1697,6 +1697,7 @@ export const ShadcnTemplate = forwardRef<
   useEffect(() => {
     imageExtension.configure({
       uploadHandler: async (file: File) => {
+        console.log(file.type);
         try {
           // 1. Get presigned URL from our server action
           const { success, uploadUrl, fileUrl, error } =
