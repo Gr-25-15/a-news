@@ -109,20 +109,6 @@ model Plans {
 }
 
 model Article {
-<<<<<<< HEAD
-  id            String   @id @default(uuid())
-  title         String
-  type          String?
-  userId        String
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
-  categoryId    String
-  authorId      String
-  contentUrl    String
-  editorId      String?
-  featuredImage String?
-  imageKey      String?
-=======
   id               String   @id
   title            String
   description      String?
@@ -135,7 +121,6 @@ model Article {
   isPublished      Boolean  @default(false)
   isSubscriberOnly Boolean  @default(false)
   thumbnailUrl     String?
->>>>>>> f890a2f3c40ff89ae3b6ebad6615f102af85cb34
 
   Category Category @relation(fields: [categoryId], references: [id])
   Author   User     @relation(name: "Author", fields: [authorId], references: [id])
