@@ -12,7 +12,7 @@ export async function getCategoryLinks(): Promise<CategoryLink[]> {
   const categories = await prisma.category.findMany();
   return categories.map((category) => ({
     title: category.name,
-    href: `/categories/${category.name.toLowerCase()}`,
+    href: `/categories/${encodeURIComponent(category.name.toLowerCase())}`,
     subCategories: [], // TODO: Fetch subcategories when they are implemented
   }));
 }
