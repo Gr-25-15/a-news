@@ -80,51 +80,17 @@ export default function Navigation({
             {categories.map((cat) => (
               <NavigationMenuItem key={cat.title}>
                 <NavigationMenuTrigger>{cat.title}</NavigationMenuTrigger>
+                {/* 
+                <NavigationMenuContent>
+                  <ul className="w-96">
+                    <ListItem href="/docs" title="Introduction">
+                      Each subcategory will go here
+                    </ListItem>
+                  </ul>
+                </NavigationMenuContent>
+                */}
               </NavigationMenuItem>
             ))}
-            {/* <NavigationMenuItem>
-              <NavigationMenuTrigger>Getting started</NavigationMenuTrigger>
-              <NavigationMenuContent>
-                <ul className="w-96">
-                  <ListItem href="/docs" title="Introduction">
-                    Re-usable components built with Tailwind CSS.
-                  </ListItem>
-                  <ListItem href="/docs/installation" title="Installation">
-                    How to install dependencies and structure your app.
-                  </ListItem>
-                  <ListItem
-                    href="/docs/primitives/typography"
-                    title="Typography"
-                  >
-                    Styles for headings, paragraphs, lists...etc
-                  </ListItem>
-                </ul>
-              </NavigationMenuContent>
-            </NavigationMenuItem>
-            <NavigationMenuItem className="hidden md:flex">
-              <NavigationMenuTrigger>Components</NavigationMenuTrigger>
-              <NavigationMenuContent>
-                <ul className="grid w-100 gap-2 md:w-125 md:grid-cols-2 lg:w-150">
-                  {components.map((component) => (
-                    <ListItem
-                      key={component.title}
-                      title={component.title}
-                      href={component.href}
-                    >
-                      {component.description}
-                    </ListItem>
-                  ))}
-                </ul>
-              </NavigationMenuContent>
-            </NavigationMenuItem>
-            <NavigationMenuItem>
-              <NavigationMenuLink
-                asChild
-                className={navigationMenuTriggerStyle()}
-              >
-                <Link href="/docs">Docs</Link>
-              </NavigationMenuLink>
-            </NavigationMenuItem> */}
             <NavigationMenuItem className="ml-15">
               <Button variant={"ghost"}>
                 <Link href={"/auth/sign-in"}>Sign In</Link>
