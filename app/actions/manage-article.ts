@@ -12,13 +12,10 @@ export async function getAllArticles() {
 export async function createArticle(
   id: string,
   contentUrl: string,
-  authorId: string,
   categoryId: string,
-  userId: string,
   title: string,
   imageKey?: string,
   featuredImage?: string,
-  editorId?: string,
   type?: string,
 ) {
   const { success } = await auth.api.userHasPermission({
@@ -32,6 +29,9 @@ export async function createArticle(
   if (!success) {
     return { success: false, error: "Unauthorized" };
   }
+
+  const authorId = (await auth.api.getUser()).id;
+
   try {
     await prisma.article.create({
       data: {
@@ -39,9 +39,7 @@ export async function createArticle(
         contentUrl,
         authorId,
         categoryId,
-        userId,
         title,
-        editorId,
       },
     });
     revalidatePath("/");
@@ -54,13 +52,11 @@ export async function createArticle(
 export async function editArticle(
   id: string,
   contentUrl: string,
-  authorId: string,
   categoryId: string,
   userId: string,
   title: string,
   imageKey?: string,
   featuredImage?: string,
-  editorId?: string,
   type?: string,
 ) {
   const { success } = await auth.api.userHasPermission({
@@ -74,6 +70,9 @@ export async function editArticle(
   if (!success) {
     return { success: false, error: "Unauthorized" };
   }
+
+  const editorId = (await auth.api.getUser()).id;
+
   try {
     await prisma.article.update({
       where: {
@@ -81,9 +80,7 @@ export async function editArticle(
       },
       data: {
         contentUrl,
-        authorId,
         categoryId,
-        userId,
         title,
         editorId,
       },
