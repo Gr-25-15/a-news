@@ -109,17 +109,18 @@ model Plans {
 }
 
 model Article {
-  id            String   @id
-  title         String
-  type          String?
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
-  categoryId    String
-  authorId      String
-  contentUrl    String
-  editorId      String?
-  featuredImage String?
-  imageKey      String?
+  id               String   @id
+  title            String
+  description      String?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+  categoryId       String
+  authorId         String
+  contentUrl       String
+  editorId         String?
+  isPublished      Boolean  @default(false)
+  isSubscriberOnly Boolean  @default(false)
+  thumbnailUrl     String?
 
   Category Category @relation(fields: [categoryId], references: [id])
   Author   User     @relation(name: "Author", fields: [authorId], references: [id])
