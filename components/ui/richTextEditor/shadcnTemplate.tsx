@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import { toast } from "sonner";
 import {
   useState,
   useEffect,
@@ -301,9 +302,8 @@ function useImageHandlers(
             commands.insertImage({ src, alt: alt || file.name, caption, file });
           } catch (error) {
             console.error("Failed to upload image:", error);
+            toast("Failed to upload");
             // Fallback to object URL
-            const src = URL.createObjectURL(file);
-            commands.insertImage({ src, alt: alt || file.name, caption, file });
           }
         } else {
           const src = URL.createObjectURL(file);
