@@ -5,8 +5,8 @@ import prisma from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 import { headers } from "next/headers";
 
-export async function getAllArtcles() {
-    return await prisma.article.findMany();
+export async function getAllArticles() {
+  return await prisma.article.findMany();
 }
 
 export async function createArticle(
@@ -41,10 +41,7 @@ export async function createArticle(
         categoryId,
         userId,
         title,
-        imageKey,
-        featuredImage,
         editorId,
-        type,
       },
     });
     revalidatePath("/");
@@ -88,10 +85,7 @@ export async function editArticle(
         categoryId,
         userId,
         title,
-        imageKey,
-        featuredImage,
         editorId,
-        type,
       },
     });
     revalidatePath("/");
