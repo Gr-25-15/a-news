@@ -49,9 +49,10 @@ export async function uploadImage(formData: FormData) {
   try {
     const arrayBuffer = await file.arrayBuffer();
     const buffer = Buffer.from(arrayBuffer);
-
-    const extension = file.name.split(".").pop();
-    const filename = `${randomUUID()}.${extension}`;
+    
+    const extension = file.name.substring(file.name.lastIndexOf('.') + 1);
+    const safeExtension = extension.replace(/[^a-zA-Z0-9]/g, '');
+    const filename = `${randomUUID()}.${safeExtension}`;
     const key = `uploads/${filename}`;
 
     const command = new PutObjectCommand({
