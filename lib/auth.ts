@@ -1,11 +1,12 @@
 import { betterAuth } from "better-auth";
 import { prismaAdapter } from "better-auth/adapters/prisma";
 import { stripe } from "@better-auth/stripe";
-import { admin } from "better-auth/plugins";
+import { admin as adminPlugin } from "better-auth/plugins";
 import { nextCookies } from "better-auth/next-js";
 
 import prisma from "./prisma";
 import Stripe from "stripe";
+import { ac, admin, user, editor } from "./permission";
 
 const stripeClient = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   apiVersion: "2025-12-15.clover",
@@ -17,7 +18,14 @@ export const auth = betterAuth({
     provider: "postgresql",
   }),
   plugins: [
-    admin(),
+    adminPlugin({
+      ac,
+      roles: {
+        admin,
+        user,
+        editor,
+      },
+    }),
     stripe({
       stripeClient,
       stripeWebhookSecret: process.env.STRIPE_WEBHOOK_SECRET!,

@@ -112,7 +112,6 @@ model Article {
   id               String   @id
   title            String
   description      String?
-  userId           String
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
   categoryId       String
