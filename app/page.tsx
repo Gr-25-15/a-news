@@ -34,7 +34,7 @@ export default function Page() {
       <Card className="p-4 mb-4 w-md m-auto">
         <AiComponent />
       </Card>
-      <CreateArticle />
+      {/* <CreateArticle /> */}
     </>
   );
 }

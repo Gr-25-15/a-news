@@ -152,8 +152,6 @@ async function main() {
             contentUrl: contentUrl,
             categoryId: categoryId!,
             authorId: user.id,
-            userId: user.id,
-            type: "news",
           },
         });
         console.log(`Successfully created article: ${title}`);

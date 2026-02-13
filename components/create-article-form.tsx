@@ -35,9 +35,10 @@ const schema = z.object({
 
 export type createArticleFormData = z.infer<typeof schema>;
 
-export default function CreateArticle(
+export default function CreateOrEditArticle(
   session: ReturnType<typeof useSession>,
   categories: Option[],
+  articleId?: string,
 ) {
   const editorRef = useRef<ShadcnTemplateRef>(null);
   const [isLoading, setIsLoading] = useState(false);
