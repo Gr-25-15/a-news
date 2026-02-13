@@ -1,6 +1,7 @@
 "use server";
 
 import { getUserById } from "@/app/actions/getSession";
+import { getAllUsers } from "@/app/actions/manageUsers";
 import {
   SignInButton,
   SignUpButton,
@@ -16,10 +17,15 @@ export default async function AdminPage() {
 
   if (!session?.user?.id) return <p>You must be logged in.</p>;
 
+  const userList = await getAllUsers();
+
+  if (userList.error) {
+    return <p>{userList.error}</p>;
+  }
+
   const userId = session.user.id;
   const user = await getUserById(userId);
   if (!user) return <p>User not found.</p>;
-
 
   return (
     <>
@@ -28,8 +34,7 @@ export default async function AdminPage() {
 
       <ShieldUser />
       <p>Hello {user.name}</p>
-      <UserManagementTable />
-
+      <UserManagementTable userList={userList.users} />
     </>
   );
 }

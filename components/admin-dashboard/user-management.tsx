@@ -1,15 +1,32 @@
-import { UserWithRoles } from "@/types/usertype";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../ui/table";
-import { getAllUsers } from "@/app/actions/manageUsers";
+"use client";
 
+import { UserWithRoles } from "@/types/usertype";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "../ui/table";
+import { setUserRole } from "@/app/actions/manageUsers";
+import { Button } from "../ui/button";
+import { useRouter } from "next/navigation";
 
 type UsersTableProps = {
-    users: UserWithRoles[];
-}
+  userList: UserWithRoles[];
+};
 
+export function UserManagementTable({ userList }: UsersTableProps) {
+  const router = useRouter();
 
-export async function UserManagementTable() {
-const users = await getAllUsers();
+  async function handleRoleChange(
+    userId: string,
+    role: "admin" | "editor" | "user",
+  ) {
+    await setUserRole(userId, role);
+    router.refresh();
+  }
 
   return (
     <Table>
@@ -23,13 +40,25 @@ const users = await getAllUsers();
         </TableRow>
       </TableHeader>
       <TableBody>
-        {users?.users.map((user) => (
+        {userList?.map((user) => (
           <TableRow key={user.id}>
             <TableCell>{user.name}</TableCell>
             <TableCell>{user.email}</TableCell>
-            <TableCell>{new Date(user.createdAt).toLocaleDateString()}</TableCell>
+            <TableCell>
+              {new Date(user.createdAt).toLocaleDateString()}
+            </TableCell>
             <TableCell>{user.role}</TableCell>
-            <TableCell>Edit</TableCell>
+            <TableCell>
+              <Button onClick={() => handleRoleChange(user.id, "user")}>
+                User
+              </Button>
+              <Button onClick={() => handleRoleChange(user.id, "editor")}>
+                Editor
+              </Button>
+              <Button onClick={() => handleRoleChange(user.id, "admin")}>
+                Admin
+              </Button>
+            </TableCell>
           </TableRow>
         ))}
       </TableBody>

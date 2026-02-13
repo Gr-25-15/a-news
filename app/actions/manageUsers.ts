@@ -1,9 +1,14 @@
 "use server";
 
 import { auth } from "@/lib/auth";
+import { UserWithRoles } from "@/types/usertype";
 import { headers } from "next/headers";
 
-export async function getAllUsers() {
+export async function getAllUsers(): Promise<{
+  users: UserWithRoles[];
+  total: number;
+  error: string | null;
+}> {
   const session = await auth.api.getSession({
     headers: await headers(),
   });
@@ -13,16 +18,54 @@ export async function getAllUsers() {
   }
 
   try {
-    const users = await auth.api.listUsers({
+    const result = await auth.api.listUsers({
       headers: await headers(),
       query: {
         limit: 100,
       },
     });
 
-    return { ...users, error: null };
+    const users: UserWithRoles[] = result.users.map((user) => ({
+      id: user.id,
+      name: user.name ?? "",
+      email: user.email,
+      role: user.role ?? "user",
+      createdAt: user.createdAt.toISOString(),
+    }));
+
+    return {
+      users,
+      total: result.total,
+      error: null,
+    };
   } catch (error) {
     console.error("Error listing users:", error);
     return { users: [], total: 0, error: "Failed to fetch users" };
+  }
+}
+
+export async function setUserRole(
+  userId: string,
+  role: "admin" | "editor" | "user"
+) {
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
+
+  if (!session || session.user.role !== "admin") {
+    return { error: "Unauthorized" };
+  }
+
+  try {
+    await auth.api.setRole({
+      body: {
+        userId,
+        role,
+      },
+      headers: await headers(),
+    });
+  } catch (error) {
+    console.error("Error updating user role:", error);
+    return { error: "Failed to update user role" };
   }
 }

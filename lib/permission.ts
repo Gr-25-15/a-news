@@ -2,7 +2,7 @@ import { createAccessControl } from "better-auth/plugins";
 
 export const statement = {
   article: ["create", "read", "edit", "delete"],
-  user: ["create", "read", "edit", "delete", "list"],
+  user: ["create", "read", "set-role", "edit", "delete", "list"],
   session: ["read", "delete", "list"],
 } as const;
 
@@ -18,6 +18,6 @@ export const editor = ac.newRole({
 
 export const admin = ac.newRole({
   article: ["create", "read", "edit", "delete"],
-  user: ["create", "read", "edit", "delete", "list"],
+  user: ["create", "read", "set-role", "edit", "delete", "list"],
   session: ["read", "delete", "list"],
 });
