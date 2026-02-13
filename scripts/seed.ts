@@ -154,7 +154,6 @@ async function main() {
             contentUrl: contentUrl,
             categoryId: categoryId!,
             authorId: user.id,
-            userId: user.id,
           },
         });
         console.log(`Successfully created article: ${title}`);

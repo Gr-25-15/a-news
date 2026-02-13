@@ -112,7 +112,6 @@ model Article {
   id               String   @id
   title            String
   description      String?
-  userId           String
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
   categoryId       String
@@ -121,6 +120,7 @@ model Article {
   editorId         String?
   isPublished      Boolean  @default(false)
   isSubscriberOnly Boolean  @default(false)
+  thumbnailUrl     String?
 
   Category Category @relation(fields: [categoryId], references: [id])
   Author   User     @relation(name: "Author", fields: [authorId], references: [id])

@@ -6,7 +6,7 @@ import { nextCookies } from "better-auth/next-js";
 
 import prisma from "./prisma";
 import Stripe from "stripe";
-import { ac, admin, editor, user } from "./permission";
+import { ac, admin, user, editor } from "./permission";
 
 const stripeClient = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   apiVersion: "2025-12-15.clover",
@@ -14,17 +14,15 @@ const stripeClient = new Stripe(process.env.STRIPE_SECRET_KEY!, {
 
 export const auth = betterAuth({
   baseURL: process.env.BETTER_AUTH_URL,
-  database: prismaAdapter(prisma, {
-    provider: "postgresql",
-  }),
-  //TODO to remove?
   emailAndPassword: {
     enabled: true,
     requireEmailVerification: false,
   },
-
+  database: prismaAdapter(prisma, {
+    provider: "postgresql",
+  }),
   plugins: [
-     adminPlugin({
+    adminPlugin({
       ac,
       roles: {
         admin,
