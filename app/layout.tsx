@@ -31,7 +31,7 @@ export default async function RootLayout({
   const categories = await getCategoryLinks();
 
   return (
-    <html lang="en" className={figtree.variable}>
+    <html lang="en" className={figtree.variable} suppressHydrationWarning>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
