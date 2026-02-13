@@ -12,7 +12,13 @@ import { createArticle } from "@/app/actions/manage-article";
 import z from "zod";
 import { useForm, FormProvider, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Field, FieldContent, FieldError, FieldLabel } from "./ui/field";
+import {
+  Field,
+  FieldContent,
+  FieldDescription,
+  FieldError,
+  FieldLabel,
+} from "./ui/field";
 import {
   Select,
   SelectContent,
@@ -73,15 +79,15 @@ export default function CreateOrEditArticle({
       if (!session.data) {
         throw new Error("Session not found");
       }
-      createArticle(
-        form.getValues("title"),
-        form.getValues("categoryId"),
-        form.getValues("isPublished"),
-        form.getValues("isSubscriberOnly"),
-        form.getValues("thumbnailUrl"),
-        form.getValues("description"),
-        markdownContent,
-      );
+      // createArticle(
+      //   form.getValues("title"),
+      //   form.getValues("categoryId"),
+      //   form.getValues("isPublished"),
+      //   form.getValues("isSubscriberOnly"),
+      //   form.getValues("thumbnailUrl"),
+      //   form.getValues("description"),
+      //   markdownContent,
+      // );
     } catch (error) {
       console.error((error as Error).message);
     } finally {
@@ -168,18 +174,60 @@ export default function CreateOrEditArticle({
             ""
           )}
 
-          <Field orientation="horizontal" className="w-fit">
-            <FieldLabel htmlFor="isPublished">Publish on save:</FieldLabel>
-            <Switch {...form.register("isPublished")} id="isPublished" />
-          </Field>
+          <Controller
+            name="isPublished"
+            control={form.control}
+            render={({ field, fieldState }) => (
+              <Field orientation="horizontal" data-invalid={fieldState.invalid}>
+                <FieldContent>
+                  <FieldLabel htmlFor="form-rhf-switch-ispublished">
+                    Publish Article
+                  </FieldLabel>
+                  <FieldDescription>
+                    Do you want to publish article? (uncheck if you want to save
+                    as draft)
+                  </FieldDescription>
+                  {fieldState.invalid && (
+                    <FieldError errors={[fieldState.error]} />
+                  )}
+                </FieldContent>
+                <Switch
+                  id="form-rhf-switch-published"
+                  name={field.name}
+                  checked={field.value}
+                  onCheckedChange={field.onChange}
+                  aria-invalid={fieldState.invalid}
+                />
+              </Field>
+            )}
+          />
 
-          <Field orientation="horizontal" className="w-fit">
-            <FieldLabel htmlFor="isSubscriberOnly">Subscriber only:</FieldLabel>
-            <Switch
-              {...form.register("isSubscriberOnly")}
-              id="isSubscriberOnly"
-            />
-          </Field>
+          <Controller
+            name="isSubscriberOnly"
+            control={form.control}
+            render={({ field, fieldState }) => (
+              <Field orientation="horizontal" data-invalid={fieldState.invalid}>
+                <FieldContent>
+                  <FieldLabel htmlFor="form-rhf-switch-issubscriberonly">
+                    Article only for subscribers
+                  </FieldLabel>
+                  <FieldDescription>
+                    Do you want to make this post for paying subscribers only?
+                  </FieldDescription>
+                  {fieldState.invalid && (
+                    <FieldError errors={[fieldState.error]} />
+                  )}
+                </FieldContent>
+                <Switch
+                  id="form-rhf-switch-subscriber"
+                  name={field.name}
+                  checked={field.value}
+                  onCheckedChange={field.onChange}
+                  aria-invalid={fieldState.invalid}
+                />
+              </Field>
+            )}
+          />
 
           <Field>
             <FieldLabel>Content</FieldLabel>
@@ -192,7 +240,7 @@ export default function CreateOrEditArticle({
 
         <Field>
           <Button type="submit" disabled={isLoading} form="form-rhf-article">
-            Create Movie
+            Save article
           </Button>
         </Field>
       </CardContent>
