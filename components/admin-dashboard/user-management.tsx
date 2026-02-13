@@ -1,5 +1,5 @@
 import { UserWithRoles } from "@/types/usertype";
-import { Table, TableBody, TableHead, TableHeader, TableRow } from "../ui/table";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../ui/table";
 import { getAllUsers } from "@/app/actions/manageUsers";
 
 
@@ -23,12 +23,15 @@ const users = await getAllUsers();
         </TableRow>
       </TableHeader>
       <TableBody>
-{/* {users.map((users) => (
-<TableRow key={users.id}>
-
-        </TableRow>
-))} */}
-        
+        {users?.users.map((user) => (
+          <TableRow key={user.id}>
+            <TableCell>{user.name}</TableCell>
+            <TableCell>{user.email}</TableCell>
+            <TableCell>{new Date(user.createdAt).toLocaleDateString()}</TableCell>
+            <TableCell>{user.role}</TableCell>
+            <TableCell>Edit</TableCell>
+          </TableRow>
+        ))}
       </TableBody>
     </Table>
   );

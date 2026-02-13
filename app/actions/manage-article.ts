@@ -30,7 +30,11 @@ export async function createArticle(
     return { success: false, error: "Unauthorized" };
   }
 
-  const authorId = (await auth.api.getUser()).id;
+  const session = await auth.api.getSession({ headers: await headers() });
+  if (!session) {
+    return { success: false, error: "Unauthorized" };
+  }
+  const authorId = session.user.id;
 
   try {
     await prisma.article.create({
@@ -71,7 +75,11 @@ export async function editArticle(
     return { success: false, error: "Unauthorized" };
   }
 
-  const editorId = (await auth.api.getUser()).id;
+  const session = await auth.api.getSession({ headers: await headers() });
+  if (!session) {
+    return { success: false, error: "Unauthorized" };
+  }
+  const editorId = session.user.id;
 
   try {
     await prisma.article.update({
