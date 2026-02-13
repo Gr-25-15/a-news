@@ -127,7 +127,6 @@ import { shadcnTheme } from "./theme";
 import { cn } from "@/lib/utils";
 import "./shadcn-styles.css";
 import Image from "next/image";
-import { getUploadUrlAction } from "@/app/actions/getUploadUrlAction";
 import { uploadImage } from "@/app/actions/upload";
 
 // Editor Mode Types
