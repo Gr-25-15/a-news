@@ -156,7 +156,7 @@ async function main() {
             authorId: user.id,
             userId: user.id,
             // type: "news",
-          },
+          }, 
         });
         console.log(`Successfully created article: ${title}`);
       } catch (e) {
