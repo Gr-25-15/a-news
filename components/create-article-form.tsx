@@ -29,6 +29,8 @@ import {
 } from "./ui/select";
 import { Switch } from "./ui/switch";
 import { Option } from "@/app/actions/getCategories";
+import { SingleFile } from "./ui/single-file-upload";
+import { SingleFileRef } from "./ui/single-file-upload";
 
 const schema = z.object({
   title: z.string().min(1, "Title is required"),
@@ -50,6 +52,7 @@ export default function CreateOrEditArticle({
   articleId,
 }: CreateOrEditArticleProps) {
   const editorRef = useRef<ShadcnTemplateRef>(null);
+  const fileUploadRef = useRef<SingleFileRef>(null);
   const [isLoading, setIsLoading] = useState(false);
   const session = useSession(); // Get session internally
 
@@ -71,7 +74,9 @@ export default function CreateOrEditArticle({
     setIsLoading(true);
     console.log(data);
     const markdownContent = editorRef.current?.getMarkdown();
+    const thumbnailUrl = fileUploadRef.current?.uploadedImageUrl;
     form.setValue("content", markdownContent || "test");
+    form.setValue("thumbnailUrl", thumbnailUrl || ""); //TODO: fix the singlefile component to retrive it's value
     console.log("Title:", form.getValues("title"));
     console.log("Markdown Content:", markdownContent);
     // We will call the server action here
@@ -228,6 +233,14 @@ export default function CreateOrEditArticle({
               </Field>
             )}
           />
+
+          <Field>
+            <FieldLabel>Thumbnail</FieldLabel>
+            <FieldContent>
+              <SingleFile ref={fileUploadRef} />
+              <FieldError errors={[form.formState.errors.description]} />
+            </FieldContent>
+          </Field>
 
           <Field>
             <FieldLabel>Content</FieldLabel>
