@@ -67,7 +67,7 @@ export const SingleFile = forwardRef<SingleFileRef, object>((props, ref) => {
         <DropZoneArea>
           <DropzoneTrigger className="flex gap-8 bg-transparent text-sm">
             <div className="flex flex-col gap-1 font-semibold">
-              <p>Upload a new avatar</p>
+              <p>Upload thumbnail image</p>
               <p className="text-xs text-muted-foreground">
                 Please select an image smaller than 10MB
               </p>

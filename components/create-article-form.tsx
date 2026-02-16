@@ -84,15 +84,15 @@ export default function CreateOrEditArticle({
       if (!session.data) {
         throw new Error("Session not found");
       }
-      // createArticle(
-      //   form.getValues("title"),
-      //   form.getValues("categoryId"),
-      //   form.getValues("isPublished"),
-      //   form.getValues("isSubscriberOnly"),
-      //   form.getValues("thumbnailUrl"),
-      //   form.getValues("description"),
-      //   markdownContent,
-      // );
+      createArticle(
+        form.getValues("title"),
+        form.getValues("categoryId"),
+        form.getValues("isPublished"),
+        form.getValues("isSubscriberOnly"),
+        form.getValues("thumbnailUrl"),
+        form.getValues("description"),
+        form.getValues("content"),
+      );
     } catch (error) {
       console.error((error as Error).message);
     } finally {
@@ -119,8 +119,12 @@ export default function CreateOrEditArticle({
         <CardTitle>Create Article</CardTitle>
       </CardHeader>
       <CardContent>
-        <form id="form-rhf-article" onSubmit={form.handleSubmit(onSubmit)}>
-          <Field>
+        <form
+          id="form-rhf-article"
+          onSubmit={form.handleSubmit(onSubmit)}
+          className="space-y-8"
+        >
+          <Field className="mb-4">
             <FieldLabel>Title</FieldLabel>
             <FieldContent>
               <Input {...form.register("title")} disabled={isLoading} />
@@ -128,7 +132,7 @@ export default function CreateOrEditArticle({
             </FieldContent>
           </Field>
 
-          <Field>
+          <Field className="mb-4">
             <FieldLabel>Description</FieldLabel>
             <FieldContent>
               <Input {...form.register("description")} disabled={isLoading} />
@@ -141,7 +145,7 @@ export default function CreateOrEditArticle({
               name="categoryId"
               control={form.control}
               render={({ field, fieldState }) => (
-                <Field data-invalid={fieldState.invalid}>
+                <Field data-invalid={fieldState.invalid} className="mb-4">
                   <FieldLabel htmlFor="form-rhf-categories">
                     Category
                   </FieldLabel>
@@ -183,7 +187,11 @@ export default function CreateOrEditArticle({
             name="isPublished"
             control={form.control}
             render={({ field, fieldState }) => (
-              <Field orientation="horizontal" data-invalid={fieldState.invalid}>
+              <Field
+                orientation="horizontal"
+                data-invalid={fieldState.invalid}
+                className="mb-4"
+              >
                 <FieldContent>
                   <FieldLabel htmlFor="form-rhf-switch-ispublished">
                     Publish Article
@@ -211,7 +219,11 @@ export default function CreateOrEditArticle({
             name="isSubscriberOnly"
             control={form.control}
             render={({ field, fieldState }) => (
-              <Field orientation="horizontal" data-invalid={fieldState.invalid}>
+              <Field
+                orientation="horizontal"
+                data-invalid={fieldState.invalid}
+                className="mb-4"
+              >
                 <FieldContent>
                   <FieldLabel htmlFor="form-rhf-switch-issubscriberonly">
                     Article only for subscribers
@@ -234,7 +246,7 @@ export default function CreateOrEditArticle({
             )}
           />
 
-          <Field>
+          <Field className="mb-4">
             <FieldLabel>Thumbnail</FieldLabel>
             <FieldContent>
               <SingleFile ref={fileUploadRef} />
@@ -242,8 +254,7 @@ export default function CreateOrEditArticle({
             </FieldContent>
           </Field>
 
-          <Field>
-            <FieldLabel>Content</FieldLabel>
+          <Field className="mb-4">
             <FieldContent>
               <ShadcnTemplate ref={editorRef} />
               <FieldError errors={[form.formState.errors.description]} />
