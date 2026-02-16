@@ -154,11 +154,8 @@ async function main() {
             contentUrl: contentUrl,
             categoryId: categoryId!,
             authorId: user.id,
-<<<<<<< HEAD
             userId: user.id,
             // type: "news",
-=======
->>>>>>> 2d62d059f05de965852a1d90d3e3487231b6268e
           },
         });
         console.log(`Successfully created article: ${title}`);
