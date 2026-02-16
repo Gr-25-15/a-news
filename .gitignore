@@ -45,3 +45,6 @@ next-env.d.ts
 # prisma
 /app/generated/prisma
 /app/generated
+
+#content collections
+.content-collections
