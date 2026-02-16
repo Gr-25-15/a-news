@@ -53,8 +53,8 @@ async function ensureDatabaseExists() {
       // Check if tables exist by trying to count articles, if it fails, push schema
       try {
         await prisma.article.count();
-      } catch (e) {
-        console.log("Tables missing, pushing Prisma schema...");
+      } catch (error) {
+        console.log("Tables missing, pushing Prisma schema...", error);
         execSync("npx prisma db push", { stdio: "inherit" });
       }
     }
