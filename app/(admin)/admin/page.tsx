@@ -1,7 +1,6 @@
 "use server";
 
-import { getUserById } from "@/app/actions/getSession";
-import { getAllUsers } from "@/app/actions/manageUsers";
+import { getAllUsers, getUserById } from "@/app/actions/manageUsers";
 import {
   SignInButton,
   SignUpButton,
@@ -15,17 +14,18 @@ import { headers } from "next/headers";
 export default async function AdminPage() {
   const session = await auth.api.getSession({ headers: await headers() });
 
-  if (!session?.user?.id) return <p>You must be logged in.</p>;
+  if (!session || session.user.role !== "admin") {
+    return { error: "Unauthorized" };
+  }
+
+  const user = session.user;
+  if (!user) return <p>User not found.</p>;
 
   const userList = await getAllUsers();
 
   if (userList.error) {
     return <p>{userList.error}</p>;
   }
-
-  const userId = session.user.id;
-  const user = await getUserById(userId);
-  if (!user) return <p>User not found.</p>;
 
   return (
     <>

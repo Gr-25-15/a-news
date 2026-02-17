@@ -3,5 +3,5 @@ export type UserWithRoles = {
   name: string;
   email: string;
   createdAt: string;
-  role: string;
+  role: "admin" | "user" | "editor";
 };

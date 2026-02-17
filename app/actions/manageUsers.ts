@@ -3,6 +3,21 @@
 import { auth } from "@/lib/auth";
 import { UserWithRoles } from "@/types/usertype";
 import { headers } from "next/headers";
+import prisma from "@/lib/prisma";
+
+export async function getUserById(id: string) {
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
+
+  if (!session || session.user.role !== "admin") {
+    return { error: "Unauthorized" };
+  }
+
+  return await prisma.user.findUnique({
+    where: { id: id },
+  });
+}
 
 export async function getAllUsers(): Promise<{
   users: UserWithRoles[];
@@ -46,7 +61,7 @@ export async function getAllUsers(): Promise<{
 
 export async function setUserRole(
   userId: string,
-  role: "admin" | "editor" | "user"
+  role: "admin" | "editor" | "user",
 ) {
   const session = await auth.api.getSession({
     headers: await headers(),
