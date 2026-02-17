@@ -48,7 +48,13 @@ import {
 } from "@lexkit/editor";
 import { RichTextPlugin } from "@lexical/react/LexicalRichTextPlugin";
 import { ContentEditable } from "@lexical/react/LexicalContentEditable";
-import { LexicalEditor, $getSelection, $isRangeSelection } from "lexical";
+import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";
+import {
+  LexicalEditor,
+  $getSelection,
+  $isRangeSelection,
+  $getNearestNodeFromDOMNode,
+} from "lexical";
 import {
   Bold,
   Italic,
@@ -128,6 +134,10 @@ import { cn } from "@/lib/utils";
 import "./shadcn-styles.css";
 import Image from "next/image";
 import { uploadImage } from "@/app/actions/upload";
+import ReactMarkdown, { type Components } from "react-markdown";
+import remarkGfm from "remark-gfm";
+import rehypeRaw from "rehype-raw";
+import { customMdxComponents } from "@/lib/mdx-components";
 
 // Editor Mode Types
 type EditorMode = "visual" | "html" | "markdown";
@@ -248,6 +258,7 @@ export const extensions = [
   codeExtension,
   codeFormatExtension,
   new HTMLEmbedExtension().configure({
+    defaultPreview: true, // Default to preview mode
     toggleRenderer: ({ isPreview, onClick, className, style }) => (
       <Button variant="outline" size="sm" onClick={onClick} style={style}>
         {isPreview ? (
@@ -263,6 +274,88 @@ export const extensions = [
         )}
       </Button>
     ),
+    previewRenderer: ({
+      html,
+      onToggleEdit,
+      className,
+      style,
+      toggleClassName,
+      toggleStyle,
+    }) => {
+      const [editor] = useLexicalComposerContext();
+      const isFrame = html.includes("<Frame");
+
+      const handleEditCaption = (e: React.MouseEvent) => {
+        e.stopPropagation();
+        const currentCaption =
+          html.match(/<Caption>(.*?)<\/Caption>/)?.[1] || "";
+        const newCaption = prompt("Enter caption:", currentCaption);
+        if (newCaption === null) return;
+
+        editor.update(() => {
+          const node = $getNearestNodeFromDOMNode(
+            e.currentTarget as HTMLElement,
+          );
+          if (node && typeof (node as any).setPayload === "function") {
+            let newHtml = html;
+            if (newHtml.includes("<Caption>")) {
+              newHtml = newHtml.replace(
+                /<Caption>.*?<\/Caption>/,
+                `<Caption>${newCaption}<\/Caption>`,
+              );
+            } else {
+              newHtml = newHtml.replace(
+                "<\/Frame>",
+                `  <Caption>${newCaption}<\/Caption>\n<\/Frame>`,
+              );
+            }
+            (node as any).setPayload({ html: newHtml });
+          }
+        });
+      };
+
+      return (
+        <div
+          className={cn(
+            "relative group border rounded-lg p-1 bg-muted/5",
+            className,
+          )}
+          style={style}
+        >
+          <div className="prose-ui pointer-events-none select-none">
+            <ReactMarkdown
+              remarkPlugins={[remarkGfm]}
+              rehypePlugins={[rehypeRaw]}
+              components={customMdxComponents as Components}
+            >
+              {html}
+            </ReactMarkdown>
+          </div>
+          <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity flex gap-2">
+            {isFrame && (
+              <Button
+                variant="secondary"
+                size="sm"
+                onClick={handleEditCaption}
+                className="h-7 text-[10px] gap-1 px-2"
+              >
+                <Type className="h-3 w-3" />
+                Edit Caption
+              </Button>
+            )}
+            <Button
+              variant="secondary"
+              size="sm"
+              onClick={onToggleEdit}
+              className="h-7 text-[10px] gap-1 px-2"
+            >
+              <Code className="h-3 w-3" />
+              Edit Source
+            </Button>
+          </div>
+        </div>
+      );
+    },
     markdownExtension: markdownExt,
   }),
   floatingToolbarExtension,
@@ -909,6 +1002,7 @@ function Toolbar({
   activeStates,
   openLinkDialog,
   openImageDialog,
+  setInsertionMode,
   editor,
 }: {
   commands: EditorCommands;
@@ -916,6 +1010,7 @@ function Toolbar({
   activeStates: EditorStateQueries;
   openLinkDialog: (options?: { initialUrl?: string }) => void;
   openImageDialog: () => void;
+  setInsertionMode: (mode: "default" | "frame") => void;
   editor: LexicalEditor | null;
 }) {
   const [showTableDialog, setShowTableDialog] = useState(false);
@@ -935,12 +1030,7 @@ function Toolbar({
 
   const insertComponent = (template: string) => {
     if (!editor) return;
-    editor.update(() => {
-      const selection = $getSelection();
-      if ($isRangeSelection(selection)) {
-        selection.insertText(template);
-      }
-    });
+    commands.insertHTMLEmbed(template);
   };
 
   const currentBlockFormat = activeStates.isH1
@@ -1112,11 +1202,10 @@ function Toolbar({
             </Tooltip>
             <DropdownMenuContent align="start">
               <DropdownMenuItem
-                onClick={() =>
-                  insertComponent(
-                    '\n<Frame align="center">\n  <Image src="https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=2072" alt="Space" />\n  <Caption>Add your caption here</Caption>\n</Frame>\n',
-                  )
-                }
+                onClick={() => {
+                  setInsertionMode("frame");
+                  openImageDialog();
+                }}
               >
                 <ImageIcon className="mr-2 h-4 w-4" />
                 Media Frame
@@ -1130,16 +1219,6 @@ function Toolbar({
               >
                 <Info className="mr-2 h-4 w-4" />
                 Standard Callout
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                onClick={() =>
-                  insertComponent(
-                    '\n<Alert variant="default" title="Alert">\n  This is your custom Shadcn Alert.\n</Alert>\n',
-                  )
-                }
-              >
-                <Terminal className="mr-2 h-4 w-4" />
-                Custom Alert
               </DropdownMenuItem>
               <DropdownMenuItem
                 onClick={() =>
@@ -1226,7 +1305,14 @@ function Toolbar({
           {hasExtension("image") && (
             <Tooltip>
               <TooltipTrigger asChild>
-                <Button size="sm" variant="ghost" onClick={openImageDialog}>
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  onClick={() => {
+                    setInsertionMode("default");
+                    openImageDialog();
+                  }}
+                >
                   <ImageIcon className="h-4 w-4" />
                 </Button>
               </TooltipTrigger>
@@ -1534,6 +1620,7 @@ function EditorContent({
 }) {
   const { commands, hasExtension, activeStates, lexical: editor } = useEditor();
   const [mode, setMode] = useState<EditorMode>("visual");
+  const [insertionMode, setInsertionMode] = useState<"default" | "frame">("default");
   const [content, setContent] = useState({ html: "", markdown: "" });
   const [linkDialogOpen, setLinkDialogOpen] = useState(false);
   const [imageDialogOpen, setImageDialogOpen] = useState(false);
@@ -1595,7 +1682,7 @@ function EditorContent({
   );
 
   const handleImageSubmit = useCallback(
-    ({
+    async ({
       activeTab,
       url,
       alt,
@@ -1608,13 +1695,51 @@ function EditorContent({
       caption: string;
       file: File | null;
     }) => {
+      if (insertionMode === "frame") {
+        let finalUrl = "";
+
+        if (activeTab === "upload" && file) {
+          const toastId = toast.loading("Uploading image...");
+          try {
+            const formData = new FormData();
+            formData.append("file", file);
+            const result = await uploadImage(formData);
+
+            if (result.success && result.url) {
+              finalUrl = result.url;
+              toast.dismiss(toastId);
+            } else {
+              toast.error("Upload failed", { id: toastId });
+              return;
+            }
+          } catch (error) {
+            toast.error("Error uploading image", { id: toastId });
+            return;
+          }
+        } else if (activeTab === "url") {
+          finalUrl = url.trim();
+        }
+
+        if (finalUrl) {
+          const mdx = `
+<Frame align="center">
+  <Image src="${finalUrl}" alt="${alt || "Image"}" />
+  ${caption ? `<Caption>${caption}</Caption>` : ""}
+</Frame>
+`;
+          commands.insertHTMLEmbed(mdx);
+        }
+        setInsertionMode("default");
+        return;
+      }
+
       if (activeTab === "upload" && file) {
         imageHandlers.insertImageFromFile(file, alt, caption);
       } else if (activeTab === "url" && url.trim()) {
         imageHandlers.insertImageFromUrl(url.trim(), alt, caption);
       }
     },
-    [imageHandlers],
+    [imageHandlers, insertionMode, commands],
   );
 
   const handleModeChange = (newMode: EditorMode) => {
@@ -1670,6 +1795,7 @@ function EditorContent({
               activeStates={activeStates}
               openLinkDialog={openLinkDialog}
               openImageDialog={() => setImageDialogOpen(true)}
+              setInsertionMode={setInsertionMode}
               editor={editor}
             />
           </div>
