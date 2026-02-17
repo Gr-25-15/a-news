@@ -3,7 +3,8 @@ import prisma from "@/lib/prisma";
 import { getS3Content } from "@/lib/s3";
 import ReactMarkdown, { type Components } from "react-markdown";
 import remarkGfm from "remark-gfm";
-import { mdxComponents } from "@prose-ui/next";
+import rehypeRaw from "rehype-raw";
+import { customMdxComponents } from "@/lib/mdx-components";
 
 type Params = Promise<{ id: string }>;
 
@@ -69,7 +70,8 @@ export default async function ArticlePage({ params }: { params: Params }) {
         <div className="prose-ui w-full">
           <ReactMarkdown
             remarkPlugins={[remarkGfm]}
-            components={mdxComponents as Components}
+            rehypePlugins={[rehypeRaw]}
+            components={customMdxComponents as Components}
           >
             {content}
           </ReactMarkdown>

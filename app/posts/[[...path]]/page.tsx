@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 import { allPosts } from "content-collections";
-import { mdxComponents } from "@prose-ui/next";
+import { customMdxComponents } from "@/lib/mdx-components";
 import { MDXContent } from "@content-collections/mdx/react";
 
 type Params = Promise<{ path: string[] }>;
@@ -26,7 +26,7 @@ export default async function Page({ params }: PageProps) {
 
   return (
     <article className="prose-ui w-full max-w-5xl mx-auto">
-      <MDXContent code={page.mdx} components={mdxComponents} />
+      <MDXContent code={page.mdx} components={customMdxComponents} />
     </article>
   );
 }

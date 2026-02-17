@@ -48,7 +48,7 @@ import {
 } from "@lexkit/editor";
 import { RichTextPlugin } from "@lexical/react/LexicalRichTextPlugin";
 import { ContentEditable } from "@lexical/react/LexicalContentEditable";
-import { LexicalEditor } from "lexical";
+import { LexicalEditor, $getSelection, $isRangeSelection } from "lexical";
 import {
   Bold,
   Italic,
@@ -71,7 +71,6 @@ import {
   Table as TableIcon,
   FileCode,
   Eye,
-  Pencil,
   Command as CommandIcon,
   Type,
   Quote,
@@ -83,6 +82,7 @@ import {
   ChevronDown,
   Indent,
   Outdent,
+  Info,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Toggle } from "@/components/ui/toggle";
@@ -909,12 +909,14 @@ function Toolbar({
   activeStates,
   openLinkDialog,
   openImageDialog,
+  editor,
 }: {
   commands: EditorCommands;
   hasExtension: (name: ExtensionNames) => boolean;
   activeStates: EditorStateQueries;
   openLinkDialog: (options?: { initialUrl?: string }) => void;
   openImageDialog: () => void;
+  editor: LexicalEditor | null;
 }) {
   const [showTableDialog, setShowTableDialog] = useState(false);
   const [tableConfig, setTableConfig] = useState<TableConfig>({
@@ -930,6 +932,16 @@ function Toolbar({
     { value: "h3", label: "Heading 3", icon: <Hash className="h-4 w-4" /> },
     { value: "quote", label: "Quote", icon: <Quote className="h-4 w-4" /> },
   ];
+
+  const insertComponent = (template: string) => {
+    if (!editor) return;
+    editor.update(() => {
+      const selection = $getSelection();
+      if ($isRangeSelection(selection)) {
+        selection.insertText(template);
+      }
+    });
+  };
 
   const currentBlockFormat = activeStates.isH1
     ? "h1"
@@ -1081,6 +1093,65 @@ function Toolbar({
             </Select>
           </div>
         )}
+
+        <Separator orientation="vertical" className="h-6" />
+
+        {/* Components Dropdown */}
+        <div className="flex items-center gap-1">
+          <DropdownMenu>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <DropdownMenuTrigger asChild>
+                  <Button size="sm" variant="ghost" className="gap-2">
+                    <CommandIcon className="h-4 w-4" />
+                    Components
+                  </Button>
+                </DropdownMenuTrigger>
+              </TooltipTrigger>
+              <TooltipContent>Insert Custom Components</TooltipContent>
+            </Tooltip>
+            <DropdownMenuContent align="start">
+              <DropdownMenuItem
+                onClick={() =>
+                  insertComponent(
+                    '\n<Frame align="center">\n  <Image src="https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=2072" alt="Space" />\n  <Caption>Add your caption here</Caption>\n</Frame>\n',
+                  )
+                }
+              >
+                <ImageIcon className="mr-2 h-4 w-4" />
+                Media Frame
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={() =>
+                  insertComponent(
+                    '\n<Callout variant="info" title="Note">\n  This is a standard Prose UI callout.\n</Callout>\n',
+                  )
+                }
+              >
+                <Info className="mr-2 h-4 w-4" />
+                Standard Callout
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={() =>
+                  insertComponent(
+                    '\n<Alert variant="default" title="Alert">\n  This is your custom Shadcn Alert.\n</Alert>\n',
+                  )
+                }
+              >
+                <Terminal className="mr-2 h-4 w-4" />
+                Custom Alert
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={() =>
+                  insertComponent("\n<BlockMath>\n  e = mc^2\n</BlockMath>\n")
+                }
+              >
+                <Hash className="mr-2 h-4 w-4" />
+                Math Block
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
 
         <Separator orientation="vertical" className="h-6" />
 
@@ -1599,6 +1670,7 @@ function EditorContent({
               activeStates={activeStates}
               openLinkDialog={openLinkDialog}
               openImageDialog={() => setImageDialogOpen(true)}
+              editor={editor}
             />
           </div>
         </div>
