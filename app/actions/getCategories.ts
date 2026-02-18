@@ -22,7 +22,7 @@ export async function getCategoryLinks(): Promise<CategoryLink[]> {
   }));
 }
 
-export async function getCateoryFormData(): Promise<Option[]> {
+export async function getCategoryFormData(): Promise<Option[]> {
   const categories = await prisma.category.findMany();
   return categories.map((category) => ({
     label: category.name,

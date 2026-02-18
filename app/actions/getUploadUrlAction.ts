@@ -1,6 +1,9 @@
 "use server";
 
+import { auth } from "@/lib/auth";
 import { getUploadUrl } from "@/lib/s3";
+import { headers } from "next/headers";
+import path from "path";
 
 type GetUploadUrlSuccess = {
   success: true;
@@ -25,8 +28,22 @@ export async function getUploadUrlAction(
   filename: string,
   contentType: string,
 ): Promise<GetUploadUrlResponse> {
+  const { success: hasPermission } = await auth.api.userHasPermission({
+    headers: await headers(),
+    body: {
+      permissions: {
+        article: ["create"],
+      },
+    },
+  });
+
+  if (!hasPermission) {
+    return { success: false, error: "Unauthorized: Missing permissions" };
+  }
+
   try {
-    const result = await getUploadUrl(filename, contentType);
+    const sanitizedFilename = path.basename(filename);
+    const result = await getUploadUrl(sanitizedFilename, contentType);
     if (!result) {
       throw new Error("Authentication failed or unable to get upload URL.");
     }
@@ -37,3 +54,4 @@ export async function getUploadUrlAction(
     return { success: false, error: message };
   }
 }
+

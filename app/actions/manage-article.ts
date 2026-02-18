@@ -6,6 +6,7 @@ import { revalidatePath } from "next/cache";
 import { headers } from "next/headers";
 import { s3Client, S3_BUCKET } from "@/lib/s3";
 import { PutObjectCommand } from "@aws-sdk/client-s3";
+import { randomUUID } from "node:crypto";
 
 export async function getAllArticles() {
   return await prisma.article.findMany();
@@ -46,7 +47,7 @@ export async function createArticle(
       .replace(/[^a-z0-9]+/g, "-")
       .replace(/(^-|-$)/g, "");
 
-    const filename = `${slug}-${Date.now()}.md`;
+    const filename = `${slug}-${randomUUID()}.md`;
     const s3Key = `articles/${filename}`;
 
     // Upload to S3
@@ -57,6 +58,7 @@ export async function createArticle(
         Key: s3Key,
         Body: content,
         ContentType: "text/markdown",
+        ACL: "public-read",
       }),
     );
 
@@ -81,7 +83,7 @@ export async function createArticle(
     return { success: true, article: article };
   } catch (e) {
     console.error(`Error processing topic "${title}":`, e);
-    return { success: false, error: e };
+    return { success: false, error: "Failed to create article" };
   }
 }
 export async function editArticle(

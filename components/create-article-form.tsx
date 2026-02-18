@@ -64,18 +64,16 @@ export default function CreateOrEditArticle({
       categoryId: "",
       isPublished: false,
       isSubscriberOnly: false,
-      thumbnailUrl: "test",
-      content: "test",
     },
   });
 
-  function onSubmit(data: z.infer<typeof schema>) {
+  async function onSubmit(data: z.infer<typeof schema>) {
     console.log("handleSave called with data:", data);
     setIsLoading(true);
     console.log(data);
     const markdownContent = editorRef.current?.getMarkdown();
     const thumbnailUrl = fileUploadRef.current?.uploadedImageUrl;
-    form.setValue("content", markdownContent || "test");
+    form.setValue("content", markdownContent || "");
     form.setValue("thumbnailUrl", thumbnailUrl || ""); //TODO: fix the singlefile component to retrive it's value
     console.log("Title:", form.getValues("title"));
     console.log("Markdown Content:", markdownContent);
@@ -84,7 +82,7 @@ export default function CreateOrEditArticle({
       if (!session.data) {
         throw new Error("Session not found");
       }
-      createArticle(
+      await createArticle(
         form.getValues("title"),
         form.getValues("categoryId"),
         form.getValues("isPublished"),
@@ -250,14 +248,14 @@ export default function CreateOrEditArticle({
             <FieldLabel>Thumbnail</FieldLabel>
             <FieldContent>
               <SingleFile ref={fileUploadRef} />
-              <FieldError errors={[form.formState.errors.description]} />
+              <FieldError errors={[form.formState.errors.thumbnailUrl]} />
             </FieldContent>
           </Field>
 
           <Field className="mb-4">
             <FieldContent>
               <ShadcnTemplate ref={editorRef} />
-              <FieldError errors={[form.formState.errors.description]} />
+              <FieldError errors={[form.formState.errors.content]} />
             </FieldContent>
           </Field>
         </form>

@@ -4,10 +4,10 @@ import { Card } from "@/components/ui/card";
 
 import AiComponent from "@/components/ai-component";
 import CreateArticle from "@/components/create-article-form";
-import { getCateoryFormData } from "./actions/getCategories";
+import { getCategoryFormData } from "./actions/getCategories";
 
 export default async function Page() {
-  const categories = await getCateoryFormData();
+  const categories = await getCategoryFormData();
   const data = await getCompanyStock("AAPL");
 
   return (
