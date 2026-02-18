@@ -137,7 +137,9 @@ import { uploadImage } from "@/app/actions/upload";
 import ReactMarkdown, { type Components } from "react-markdown";
 import remarkGfm from "remark-gfm";
 import rehypeRaw from "rehype-raw";
+import rehypeSanitize from "rehype-sanitize";
 import { customMdxComponents } from "@/lib/mdx-components";
+import { sanitizeSchema } from "@/lib/rehype-sanitize-config";
 
 // Editor Mode Types
 type EditorMode = "visual" | "html" | "markdown";
@@ -325,7 +327,7 @@ export const extensions = [
           <div className="prose-ui pointer-events-none select-none">
             <ReactMarkdown
               remarkPlugins={[remarkGfm]}
-              rehypePlugins={[rehypeRaw]}
+              rehypePlugins={[rehypeRaw, [rehypeSanitize, sanitizeSchema]]}
               components={customMdxComponents as Components}
             >
               {html}

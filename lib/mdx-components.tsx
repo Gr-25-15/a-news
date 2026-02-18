@@ -99,6 +99,7 @@ export const customMdxComponents = {
   ),
 
   // Aliases for lowercase tags to prevent browser/parser errors
+  alert: (props: any) => customMdxComponents.Alert(props),
   callout: (props: any) => customMdxComponents.Callout(props),
   frame: (props: any) => customMdxComponents.Frame(props),
   image: (props: any) => customMdxComponents.Image(props),

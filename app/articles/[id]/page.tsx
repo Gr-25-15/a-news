@@ -4,7 +4,9 @@ import { getS3Content } from "@/lib/s3";
 import ReactMarkdown, { type Components } from "react-markdown";
 import remarkGfm from "remark-gfm";
 import rehypeRaw from "rehype-raw";
+import rehypeSanitize from "rehype-sanitize";
 import { customMdxComponents } from "@/lib/mdx-components";
+import { sanitizeSchema } from "@/lib/rehype-sanitize-config";
 
 type Params = Promise<{ id: string }>;
 
@@ -70,7 +72,7 @@ export default async function ArticlePage({ params }: { params: Params }) {
         <div className="prose-ui w-full">
           <ReactMarkdown
             remarkPlugins={[remarkGfm]}
-            rehypePlugins={[rehypeRaw]}
+            rehypePlugins={[rehypeRaw, [rehypeSanitize, sanitizeSchema]]}
             components={customMdxComponents as Components}
           >
             {content}
