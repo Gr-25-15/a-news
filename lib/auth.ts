@@ -14,7 +14,10 @@ const stripeClient = new Stripe(process.env.STRIPE_SECRET_KEY!, {
 
 export const auth = betterAuth({
   baseURL: process.env.BETTER_AUTH_URL,
-  emailAndPassword: { enabled: true },
+  emailAndPassword: {
+    enabled: true,
+    requireEmailVerification: false,
+  },
   database: prismaAdapter(prisma, {
     provider: "postgresql",
   }),
