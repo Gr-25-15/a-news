@@ -10,7 +10,6 @@ import {
   ListObjectsV2Command,
   PutObjectCommand,
 } from "@aws-sdk/client-s3";
-import { randomUUID } from "crypto";
 
 const CATEGORIES = ["Sweden", "World", "Technology", "Sports", "Culture"];
 
@@ -149,7 +148,6 @@ async function main() {
         // Create Article in DB
         await prisma.article.create({
           data: {
-            id: randomUUID(),
             title: title,
             contentUrl: contentUrl,
             categoryId: categoryId!,

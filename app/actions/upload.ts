@@ -7,7 +7,12 @@ import { PutObjectCommand } from "@aws-sdk/client-s3";
 import { randomUUID } from "crypto";
 
 const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
-const ALLOWED_MIME_TYPES = ["image/jpeg", "image/png", "image/gif", "image/webp"];
+const ALLOWED_MIME_TYPES = [
+  "image/jpeg",
+  "image/png",
+  "image/gif",
+  "image/webp",
+];
 
 export async function uploadImage(formData: FormData) {
   const session = await auth.api.getSession({
@@ -39,7 +44,10 @@ export async function uploadImage(formData: FormData) {
 
   // Server-side validation
   if (!ALLOWED_MIME_TYPES.includes(file.type)) {
-    return { success: false, error: "Invalid file type. Only JPEG, PNG, GIF, and WebP are allowed." };
+    return {
+      success: false,
+      error: "Invalid file type. Only JPEG, PNG, GIF, and WebP are allowed.",
+    };
   }
 
   if (file.size > MAX_FILE_SIZE) {
@@ -49,9 +57,9 @@ export async function uploadImage(formData: FormData) {
   try {
     const arrayBuffer = await file.arrayBuffer();
     const buffer = Buffer.from(arrayBuffer);
-    
-    const extension = file.name.substring(file.name.lastIndexOf('.') + 1);
-    const safeExtension = extension.replace(/[^a-zA-Z0-9]/g, '');
+
+    const extension = file.name.substring(file.name.lastIndexOf(".") + 1);
+    const safeExtension = extension.replace(/[^a-zA-Z0-9]/g, "");
     const filename = `${randomUUID()}.${safeExtension}`;
     const key = `uploads/${filename}`;
 
