@@ -66,6 +66,11 @@ export default function Navigation({
   categories: CategoryLink[];
 }) {
   const [open, setOpen] = React.useState(false);
+  const [mounted, setMounted] = React.useState(false);
+
+  React.useEffect(() => {
+    setMounted(true);
+  }, []);
 
   // TODO: Limit category count if we add more than 5
 
@@ -75,63 +80,65 @@ export default function Navigation({
         <h1 className="font-sans text-7xl text-center mb-3 font-semibold">
           A-News
         </h1>
-        <NavigationMenu className="hidden md:flex">
-          <NavigationMenuList className="gap-4">
-            {categories.map((cat) => (
-              <NavigationMenuItem key={cat.title}>
-                <NavigationMenuTrigger>{cat.title}</NavigationMenuTrigger>
-                {/* 
-                <NavigationMenuContent>
-                  <ul className="w-96">
-                    <ListItem href="/docs" title="Introduction">
-                      Each subcategory will go here
-                    </ListItem>
-                  </ul>
-                </NavigationMenuContent>
-                */}
-              </NavigationMenuItem>
-            ))}
-            <NavigationMenuItem className="ml-15">
-              <Button variant={"ghost"} asChild>
-                <Link href={"/auth/sign-in"}>Sign In</Link>
-              </Button>
-            </NavigationMenuItem>
-            <NavigationMenuItem>
-              <Button asChild>
-                <Link href={"/auth/sign-up"}>Sign Up</Link>
-              </Button>
-            </NavigationMenuItem>
-          </NavigationMenuList>
-        </NavigationMenu>
-        <Sheet open={open} onOpenChange={setOpen}>
-          <SheetTrigger asChild>
-            <Button variant="ghost" className="md:hidden w-fit">
-              <Menu className="size-6" />
-            </Button>
-          </SheetTrigger>
-          <SheetContent side="left">
-            <SheetHeader>
-              <SheetTitle>A-News</SheetTitle>
-            </SheetHeader>
-            <nav className="flex flex-col gap-4 p-6">
-              {categories.map((cat) => (
-                <Link
-                  key={cat.title}
-                  href={cat.href}
-                  onClick={() => setOpen(false)}
-                >
-                  {cat.title}
-                </Link>
-              ))}
-              <Button variant={"ghost"} asChild>
-                <Link href={"/auth/sign-in"}>Sign In</Link>
-              </Button>
-              <Button asChild>
-                <Link href={"/auth/sign-up"}>Sign Up</Link>
-              </Button>
-            </nav>
-          </SheetContent>
-        </Sheet>
+        {mounted ? (
+          <>
+            <NavigationMenu className="hidden md:flex">
+              <NavigationMenuList className="gap-4">
+                {categories.map((cat) => (
+                  <NavigationMenuItem key={cat.title}>
+                    <NavigationMenuLink
+                      asChild
+                      className={navigationMenuTriggerStyle()}
+                    >
+                      <Link href={cat.href}>{cat.title}</Link>
+                    </NavigationMenuLink>
+                  </NavigationMenuItem>
+                ))}
+                <NavigationMenuItem className="ml-15">
+                  <Button variant={"ghost"} asChild>
+                    <Link href={"/auth/sign-in"}>Sign In</Link>
+                  </Button>
+                </NavigationMenuItem>
+                <NavigationMenuItem>
+                  <Button asChild>
+                    <Link href={"/auth/sign-up"}>Sign Up</Link>
+                  </Button>
+                </NavigationMenuItem>
+              </NavigationMenuList>
+            </NavigationMenu>
+            <Sheet open={open} onOpenChange={setOpen}>
+              <SheetTrigger asChild>
+                <Button variant="ghost" className="md:hidden w-fit">
+                  <Menu className="size-6" />
+                </Button>
+              </SheetTrigger>
+              <SheetContent side="left">
+                <SheetHeader>
+                  <SheetTitle>A-News</SheetTitle>
+                </SheetHeader>
+                <nav className="flex flex-col gap-4 p-6">
+                  {categories.map((cat) => (
+                    <Link
+                      key={cat.title}
+                      href={cat.href}
+                      onClick={() => setOpen(false)}
+                    >
+                      {cat.title}
+                    </Link>
+                  ))}
+                  <Button variant={"ghost"} asChild>
+                    <Link href={"/auth/sign-in"}>Sign In</Link>
+                  </Button>
+                  <Button asChild>
+                    <Link href={"/auth/sign-up"}>Sign Up</Link>
+                  </Button>
+                </nav>
+              </SheetContent>
+            </Sheet>
+          </>
+        ) : (
+          <div className="h-10" /> // Placeholder to prevent layout shift
+        )}
       </div>
     </header>
   );

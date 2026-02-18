@@ -1622,7 +1622,9 @@ function EditorContent({
 }) {
   const { commands, hasExtension, activeStates, lexical: editor } = useEditor();
   const [mode, setMode] = useState<EditorMode>("visual");
-  const [insertionMode, setInsertionMode] = useState<"default" | "frame">("default");
+  const [insertionMode, setInsertionMode] = useState<"default" | "frame">(
+    "default",
+  );
   const [content, setContent] = useState({ html: "", markdown: "" });
   const [linkDialogOpen, setLinkDialogOpen] = useState(false);
   const [imageDialogOpen, setImageDialogOpen] = useState(false);
@@ -1700,6 +1702,12 @@ function EditorContent({
       if (insertionMode === "frame") {
         let finalUrl = "";
 
+        // Remove eventual quotation marks from alt text
+        const re = /"[^"]*"/i;
+        if (!re.test(alt)) {
+          alt = "";
+        }
+
         if (activeTab === "upload" && file) {
           const toastId = toast.loading("Uploading image...");
           try {
@@ -1724,11 +1732,11 @@ function EditorContent({
 
         if (finalUrl) {
           const mdx = `
-<Frame align="center">
-  <Image src="${finalUrl}" alt="${alt || "Image"}" />
-  ${caption ? `<Caption>${caption}</Caption>` : ""}
-</Frame>
-`;
+          <Frame align="center">
+            <Image src="${finalUrl}" alt="${alt || "Image"}" />
+            ${caption ? `<Caption>${caption}</Caption>` : ""}
+          </Frame>
+          `;
           commands.insertHTMLEmbed(mdx);
         }
         setInsertionMode("default");

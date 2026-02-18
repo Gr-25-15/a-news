@@ -7,6 +7,7 @@ import rehypeRaw from "rehype-raw";
 import rehypeSanitize from "rehype-sanitize";
 import { customMdxComponents } from "@/lib/mdx-components";
 import { sanitizeSchema } from "@/lib/rehype-sanitize-config";
+import Image from "next/image";
 
 type Params = Promise<{ id: string }>;
 
@@ -59,12 +60,14 @@ export default async function ArticlePage({ params }: { params: Params }) {
         </header>
 
         {article.thumbnailUrl && (
-          <div className="mb-8 overflow-hidden rounded-xl">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
+          <div className="relative mb-8 overflow-hidden rounded-xl aspect-video max-h-125">
+            <Image
               src={article.thumbnailUrl}
               alt={article.title}
-              className="w-full h-auto object-cover max-h-125"
+              fill
+              className="object-cover"
+              priority
+              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 80vw, 1200px"
             />
           </div>
         )}
