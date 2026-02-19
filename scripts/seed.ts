@@ -201,7 +201,6 @@ async function main() {
         // Create Article in DB
         await prisma.article.create({
           data: {
-            id: randomUUID(),
             title: title,
             contentUrl: contentUrl,
             categoryId: categoryId!,

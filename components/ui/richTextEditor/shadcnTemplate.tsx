@@ -1761,8 +1761,16 @@ function EditorContent({
       getMarkdown: () => commandsRef.current.exportToMarkdown(),
       getHTML: () => commandsRef.current.exportToHTML(),
     }),
-    [], // No dependencies to prevent recreation
+    [editor], // No dependencies to prevent recreation
   );
+
+  useEffect(() => {
+    // Pass methods up once editor is ready
+    if (editor && onReadyRef.current && !readyCalledRef.current) {
+      onReadyRef.current(methods);
+      readyCalledRef.current = true;
+    }
+  }, [editor, methods]);
 
   const { handlers: imageHandlers } = useImageHandlers(commands, editor);
 
