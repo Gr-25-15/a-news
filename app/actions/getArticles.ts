@@ -3,6 +3,7 @@
 import prisma from "@/lib/prisma";
 import { getS3Content } from "@/lib/s3";
 import type { Article } from "../generated/prisma/client";
+import { notFound } from "next/navigation";
 
 export async function extractContent(article: Article) {
   // contentUrl is something like http://.../bucket/articles/filename.md
@@ -29,10 +30,14 @@ export async function getArticleById(id: string) {
     where: {
       id: id,
     },
+    include: {
+      Category: true,
+      Author: true,
+    },
   });
 
   if (!article) {
-    return null;
+    notFound();
   }
 
   const content = await extractContent(article);
@@ -41,6 +46,9 @@ export async function getArticleById(id: string) {
     content,
   };
 }
+
+export type articleFull = Awaited<ReturnType<typeof getArticleById>>;
+
 export async function getArticlesWithContent() {
   const articles = await prisma.article.findMany();
 
