@@ -31,7 +31,11 @@ export default function AdminDisplayArticle({
   return (
     <div>
       {isEditing ? (
-        <CreateOrEditArticle articleId={articleId} categories={categories} />
+        <CreateOrEditArticle
+          articleId={articleId}
+          categories={categories}
+          isEditing={isEditing}
+        />
       ) : (
         <main className="container mx-auto py-10 px-4">
           {isAdmin ? (

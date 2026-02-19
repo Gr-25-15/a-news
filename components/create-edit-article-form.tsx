@@ -8,7 +8,7 @@ import { useEffect, useRef, useState } from "react";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { useSession } from "@/lib/auth-client";
-import { createArticle } from "@/app/actions/manage-article";
+import { createArticle, editArticle } from "@/app/actions/manage-article";
 import z from "zod";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -46,11 +46,13 @@ const schema = z.object({
 interface CreateOrEditArticleProps {
   categories?: Option[];
   articleId?: string;
+  isEditing: boolean;
 }
 
 export default function CreateOrEditArticle({
   categories,
   articleId,
+  isEditing,
 }: CreateOrEditArticleProps) {
   const editorRef = useRef<ShadcnTemplateRef>(null);
   const fileUploadRef = useRef<SingleFileRef>(null);
@@ -102,6 +104,7 @@ export default function CreateOrEditArticle({
     console.log(data);
     const markdownContent = editorRef.current?.getMarkdown();
     const thumbnailUrl = fileUploadRef.current?.uploadedImageUrl;
+
     form.setValue("content", markdownContent || "");
     form.setValue("thumbnailUrl", thumbnailUrl || ""); //TODO: fix the singlefile component to retrive it's value
     console.log("Title:", form.getValues("title"));
@@ -111,15 +114,28 @@ export default function CreateOrEditArticle({
       if (!session.data) {
         throw new Error("Session not found");
       }
-      await createArticle(
-        form.getValues("title"),
-        form.getValues("categoryId"),
-        form.getValues("isPublished"),
-        form.getValues("isSubscriberOnly"),
-        form.getValues("thumbnailUrl"),
-        form.getValues("description"),
-        form.getValues("content"),
-      );
+      if (isEditing) {
+        await editArticle(
+          form.getValues("title"),
+          form.getValues("categoryId"),
+          form.getValues("isPublished"),
+          form.getValues("isSubscriberOnly"),
+          articleId,
+          form.getValues("thumbnailUrl"),
+          form.getValues("description"),
+          form.getValues("content"),
+        );
+      } else {
+        await createArticle(
+          form.getValues("title"),
+          form.getValues("categoryId"),
+          form.getValues("isPublished"),
+          form.getValues("isSubscriberOnly"),
+          form.getValues("thumbnailUrl"),
+          form.getValues("description"),
+          form.getValues("content"),
+        );
+      }
     } catch (error) {
       console.error((error as Error).message);
     } finally {
