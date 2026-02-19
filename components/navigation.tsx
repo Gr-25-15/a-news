@@ -20,6 +20,7 @@ import { Button } from "./ui/button";
 import { Menu } from "lucide-react";
 import { CategoryLink } from "@/app/actions/getCategories";
 import { useSession } from "@/lib/auth-client";
+import { set } from "zod/v3";
 
 /* const components: { title: string; href: string; description: string }[] = [
   {
@@ -91,7 +92,11 @@ export default function Navigation({
                       asChild
                       className={navigationMenuTriggerStyle()}
                     >
-                      <Link href={cat.href}>{cat.title}</Link>
+                      <Link
+                        href={cat.href}
+                      >
+                        {cat.title}
+                      </Link>
                     </NavigationMenuLink>
                   </NavigationMenuItem>
                 ))}

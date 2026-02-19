@@ -1,8 +1,5 @@
-"use client";
-
 import { Article } from "@/app/generated/prisma/client";
 import { NewsCard } from "./news-card";
-import { ArticleWithContent } from "@/app/page";
 
 interface NewsListProps {
   articles: Article[];
