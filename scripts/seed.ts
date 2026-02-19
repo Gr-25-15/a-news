@@ -10,10 +10,63 @@ import {
   ListObjectsV2Command,
   PutObjectCommand,
 } from "@aws-sdk/client-s3";
+import { randomUUID } from "crypto";
+import { Client } from "pg";
+import { execSync } from "child_process";
 
 const CATEGORIES = ["Sweden", "World", "Technology", "Sports", "Culture"];
 
+async function ensureDatabaseExists() {
+  const databaseUrl = process.env.DATABASE_URL;
+  if (!databaseUrl) {
+    console.warn("DATABASE_URL not found, skipping database existence check.");
+    return;
+  }
+
+  const url = new URL(databaseUrl);
+  const dbName = url.pathname.slice(1);
+
+  // Create a connection string for the default 'postgres' database
+  const adminUrl = new URL(databaseUrl);
+  adminUrl.pathname = "/postgres";
+
+  const client = new Client({
+    connectionString: adminUrl.toString(),
+  });
+
+  try {
+    await client.connect();
+    const result = await client.query(
+      "SELECT 1 FROM pg_database WHERE datname = $1",
+      [dbName],
+    );
+
+    if (result.rowCount === 0) {
+      console.log(`Database "${dbName}" does not exist. Creating...`);
+      await client.query(`CREATE DATABASE "${dbName}"`);
+      console.log(`Database "${dbName}" created successfully.`);
+
+      console.log("Pushing Prisma schema...");
+      execSync("npx prisma db push", { stdio: "inherit" });
+    } else {
+      console.log(`Database "${dbName}" already exists.`);
+      // Check if tables exist by trying to count articles, if it fails, push schema
+      try {
+        await prisma.article.count();
+      } catch (error) {
+        console.log("Tables missing, pushing Prisma schema...", error);
+        execSync("npx prisma db push", { stdio: "inherit" });
+      }
+    }
+  } catch (error) {
+    console.error("Error ensuring database exists:", error);
+  } finally {
+    await client.end();
+  }
+}
+
 async function main() {
+  await ensureDatabaseExists();
   console.log("Starting seed with Gemini generation and S3 uploads...");
 
   const cleanEndpoint = process.env.S3_ENDPOINT?.replace(/\/$/, "");

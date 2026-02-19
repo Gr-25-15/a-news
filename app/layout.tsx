@@ -35,8 +35,10 @@ export default async function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <Navigation categories={categories} />
-        <Providers>{children}</Providers>
+        <Providers>
+          <Navigation categories={categories} />
+          {children}
+        </Providers>
       </body>
     </html>
   );
