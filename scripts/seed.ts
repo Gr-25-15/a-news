@@ -205,6 +205,11 @@ async function main() {
             contentUrl: contentUrl,
             categoryId: categoryId!,
             authorId: user.id,
+            thumbnailUrl:
+              "https://api-s3-gr15.local.lexlink.se/a-news/uploads/7a2a2b96-539b-44e5-bf46-5b770c7ef637.jpg",
+            description: "best article ever",
+            isPublished: true,
+            isSubscriberOnly: false,
           },
         });
         console.log(`Successfully created article: ${title}`);
