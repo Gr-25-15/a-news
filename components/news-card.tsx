@@ -9,23 +9,28 @@ import {
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { LockKeyholeIcon, StarIcon, ArrowRightIcon } from "lucide-react";
+import Link from "next/link";
 
 export function NewsCard({
+  id,
   title,
   description,
   isLocked,
 }: {
+  id: string;
   title: string;
   description: string;
   isLocked: boolean;
 }) {
   return (
-    <Card className="w-full max-w-sm overflow-hidden border border-muted-foreground shadow-sm">
+    <Card className="w-full flex flex-col justify-between overflow-hidden border border-muted shadow-sm pb-0">
       <CardHeader className="flex flex-row justify-between items-start pb-4">
         <div className="space-y-1">
           <CardTitle className="text-xl font-bold uppercase">{title}</CardTitle>
           <CardDescription className="text-sm text-muted-foreground leading-tight">
-            {description}
+            {description === ""
+              ? "This article doesn't have a description."
+              : description}
           </CardDescription>
         </div>
         {/* Star Icon from Page 1 of PDF */}
@@ -45,10 +50,13 @@ export function NewsCard({
             </Button>
           </div>
         ) : (
-          // The "Public" state logic [cite: 6]
-          <div className="absolute bottom-4 right-4 flex items-center gap-1 text-sm font-semibold cursor-pointer">
-            Go to article <ArrowRightIcon size={16} />
-          </div>
+          <Link
+            href={`/article/${id}`}
+            className="absolute bottom-4 right-4 flex items-center gap-1 text-sm font-semibold"
+          >
+            Go to article
+            <ArrowRightIcon size={16} />
+          </Link>
         )}
       </CardContent>
     </Card>
