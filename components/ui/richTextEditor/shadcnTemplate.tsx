@@ -48,7 +48,14 @@ import {
 } from "@lexkit/editor";
 import { RichTextPlugin } from "@lexical/react/LexicalRichTextPlugin";
 import { ContentEditable } from "@lexical/react/LexicalContentEditable";
-import { LexicalEditor } from "lexical";
+import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";
+import {
+  LexicalEditor,
+  $getSelection,
+  $isRangeSelection,
+  $getNearestNodeFromDOMNode,
+  $getNodeByKey,
+} from "lexical";
 import {
   Bold,
   Italic,
@@ -71,7 +78,6 @@ import {
   Table as TableIcon,
   FileCode,
   Eye,
-  Pencil,
   Command as CommandIcon,
   Type,
   Quote,
@@ -83,6 +89,7 @@ import {
   ChevronDown,
   Indent,
   Outdent,
+  Info,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Toggle } from "@/components/ui/toggle";
@@ -128,6 +135,12 @@ import { cn } from "@/lib/utils";
 import "./shadcn-styles.css";
 import Image from "next/image";
 import { uploadImage } from "@/app/actions/upload";
+import ReactMarkdown, { type Components } from "react-markdown";
+import remarkGfm from "remark-gfm";
+import rehypeRaw from "rehype-raw";
+import rehypeSanitize from "rehype-sanitize";
+import { customMdxComponents } from "@/lib/mdx-components";
+import { sanitizeSchema } from "@/lib/rehype-sanitize-config";
 
 // Editor Mode Types
 type EditorMode = "visual" | "html" | "markdown";
@@ -248,6 +261,7 @@ export const extensions = [
   codeExtension,
   codeFormatExtension,
   new HTMLEmbedExtension().configure({
+    defaultPreview: true, // Default to preview mode
     toggleRenderer: ({ isPreview, onClick, className, style }) => (
       <Button variant="outline" size="sm" onClick={onClick} style={style}>
         {isPreview ? (
@@ -263,6 +277,105 @@ export const extensions = [
         )}
       </Button>
     ),
+    previewRenderer: ({
+      html,
+      onToggleEdit,
+      className,
+      style,
+      toggleClassName,
+      toggleStyle,
+    }) => {
+      const [editor] = useLexicalComposerContext();
+      const isFrame = html.includes("<Frame");
+      const [isCaptionDialogOpen, setIsCaptionDialogOpen] = useState(false);
+      const [targetNodeKey, setTargetNodeKey] = useState<string | null>(null);
+
+      const handleEditCaption = (e: React.MouseEvent) => {
+        e.stopPropagation();
+        editor.read(() => {
+          const node = $getNearestNodeFromDOMNode(
+            e.currentTarget as HTMLElement,
+          );
+          if (node) {
+            setTargetNodeKey(node.getKey());
+            setIsCaptionDialogOpen(true);
+          }
+        });
+      };
+
+      const handleCaptionSubmit = (newCaption: string) => {
+        if (!targetNodeKey) return;
+        editor.update(() => {
+          const node = $getNodeByKey(targetNodeKey);
+          if (node && typeof (node as any).setPayload === "function") {
+            let newHtml = html;
+            if (newHtml.includes("<Caption>")) {
+              newHtml = newHtml.replace(
+                /<Caption>.*?<\/Caption>/,
+                `<Caption>${newCaption}</Caption>`,
+              );
+            } else {
+              newHtml = newHtml.replace(
+                "</Frame>",
+                `  <Caption>${newCaption}</Caption>\n</Frame>`,
+              );
+            }
+            (node as any).setPayload({ html: newHtml });
+          }
+        });
+        setTargetNodeKey(null);
+      };
+
+      const currentCaption = html.match(/<Caption>(.*?)<\/Caption>/)?.[1] || "";
+
+      return (
+        <div
+          className={cn(
+            "relative group border rounded-lg p-1 bg-muted/5",
+            className,
+          )}
+          style={style}
+        >
+          <div className="prose-ui pointer-events-none select-none">
+            <ReactMarkdown
+              remarkPlugins={[remarkGfm]}
+              rehypePlugins={[rehypeRaw, [rehypeSanitize, sanitizeSchema]]}
+              components={customMdxComponents as Components}
+            >
+              {html}
+            </ReactMarkdown>
+          </div>
+          <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity flex gap-2">
+            {isFrame && (
+              <Button
+                variant="secondary"
+                size="sm"
+                onClick={handleEditCaption}
+                className="h-7 text-[10px] gap-1 px-2"
+              >
+                <Type className="h-3 w-3" />
+                Edit Caption
+              </Button>
+            )}
+            <Button
+              variant="secondary"
+              size="sm"
+              onClick={onToggleEdit}
+              className="h-7 text-[10px] gap-1 px-2"
+            >
+              <Code className="h-3 w-3" />
+              Edit Source
+            </Button>
+          </div>
+          <CaptionDialog
+            isOpen={isCaptionDialogOpen}
+            onOpenChange={setIsCaptionDialogOpen}
+            initialCaption={currentCaption}
+            onSubmit={handleCaptionSubmit}
+          />
+        </div>
+      );
+    },
     markdownExtension: markdownExt,
   }),
   floatingToolbarExtension,
@@ -646,6 +759,77 @@ function ImageDialog({
   );
 }
 
+// Caption Dialog Component
+function CaptionDialog({
+  isOpen,
+  onOpenChange,
+  initialCaption = "",
+  onSubmit,
+}: {
+  isOpen: boolean;
+  onOpenChange: (open: boolean) => void;
+  initialCaption?: string;
+  onSubmit: (caption: string) => void;
+}) {
+  const [caption, setCaption] = useState(initialCaption);
+
+  useEffect(() => {
+    if (isOpen) {
+      setCaption(initialCaption);
+    }
+  }, [isOpen, initialCaption]);
+
+  const handleSubmit = () => {
+    onSubmit(caption);
+    onOpenChange(false);
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      handleSubmit();
+    }
+  };
+
+  return (
+    <ShadcnDialog open={isOpen} onOpenChange={onOpenChange}>
+      <DialogContent className="sm:max-w-md">
+        <DialogHeader>
+          <div className="flex items-center gap-2">
+            <Type className="h-5 w-5" />
+            <DialogTitle>Edit Caption</DialogTitle>
+          </div>
+        </DialogHeader>
+
+        <div className="space-y-4">
+          <div className="space-y-2">
+            <Label htmlFor="caption-text">Caption</Label>
+            <Input
+              id="caption-text"
+              placeholder="Enter caption..."
+              value={caption}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                setCaption(e.target.value)
+              }
+              onKeyDown={handleKeyDown}
+              autoFocus
+            />
+          </div>
+        </div>
+
+        <DialogFooter>
+          <div className="flex justify-end gap-2">
+            <Button variant="outline" onClick={() => onOpenChange(false)}>
+              Cancel
+            </Button>
+            <Button onClick={handleSubmit}>Save Caption</Button>
+          </div>
+        </DialogFooter>
+      </DialogContent>
+    </ShadcnDialog>
+  );
+}
+
 // Floating Toolbar Component
 function FloatingToolbarRenderer({
   openLinkDialog,
@@ -655,6 +839,7 @@ function FloatingToolbarRenderer({
   const { commands, activeStates, extensions, hasExtension } = useEditor();
   const [isVisible, setIsVisible] = useState(false);
   const [selectionRect, setSelectionRect] = useState<any>(null);
+  const [isCaptionDialogOpen, setIsCaptionDialogOpen] = useState(false);
 
   const floatingExtension = extensions.find(
     (ext) => ext.name === "floatingToolbar",
@@ -673,6 +858,10 @@ function FloatingToolbarRenderer({
     const interval = setInterval(checkState, 200);
     return () => clearInterval(interval);
   }, [floatingExtension]);
+
+  const handleCaptionSubmit = (caption: string) => {
+    commands.setImageCaption(caption);
+  };
 
   if (!isVisible || !selectionRect) return null;
 
@@ -749,10 +938,7 @@ function FloatingToolbarRenderer({
                 <Button
                   size="sm"
                   variant="ghost"
-                  onClick={() => {
-                    const caption = prompt("Enter caption:") || "";
-                    commands.setImageCaption(caption);
-                  }}
+                  onClick={() => setIsCaptionDialogOpen(true)}
                 >
                   <Type className="h-4 w-4" />
                 </Button>
@@ -897,6 +1083,12 @@ function FloatingToolbarRenderer({
           </>
         )}
       </div>
+      <CaptionDialog
+        isOpen={isCaptionDialogOpen}
+        onOpenChange={setIsCaptionDialogOpen}
+        initialCaption={""}
+        onSubmit={handleCaptionSubmit}
+      />
     </TooltipProvider>,
     document.body,
   );
@@ -909,12 +1101,16 @@ function Toolbar({
   activeStates,
   openLinkDialog,
   openImageDialog,
+  setInsertionMode,
+  editor,
 }: {
   commands: EditorCommands;
   hasExtension: (name: ExtensionNames) => boolean;
   activeStates: EditorStateQueries;
   openLinkDialog: (options?: { initialUrl?: string }) => void;
   openImageDialog: () => void;
+  setInsertionMode: (mode: "default" | "frame") => void;
+  editor: LexicalEditor | null;
 }) {
   const [showTableDialog, setShowTableDialog] = useState(false);
   const [tableConfig, setTableConfig] = useState<TableConfig>({
@@ -930,6 +1126,11 @@ function Toolbar({
     { value: "h3", label: "Heading 3", icon: <Hash className="h-4 w-4" /> },
     { value: "quote", label: "Quote", icon: <Quote className="h-4 w-4" /> },
   ];
+
+  const insertComponent = (template: string) => {
+    if (!editor) return;
+    commands.insertHTMLEmbed(template);
+  };
 
   const currentBlockFormat = activeStates.isH1
     ? "h1"
@@ -1084,6 +1285,54 @@ function Toolbar({
 
         <Separator orientation="vertical" className="h-6" />
 
+        {/* Components Dropdown */}
+        <div className="flex items-center gap-1">
+          <DropdownMenu>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <DropdownMenuTrigger asChild>
+                  <Button size="sm" variant="ghost" className="gap-2">
+                    <CommandIcon className="h-4 w-4" />
+                    Components
+                  </Button>
+                </DropdownMenuTrigger>
+              </TooltipTrigger>
+              <TooltipContent>Insert Custom Components</TooltipContent>
+            </Tooltip>
+            <DropdownMenuContent align="start">
+              <DropdownMenuItem
+                onClick={() => {
+                  setInsertionMode("frame");
+                  openImageDialog();
+                }}
+              >
+                <ImageIcon className="mr-2 h-4 w-4" />
+                Media Frame
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={() =>
+                  insertComponent(
+                    '\n<Callout variant="info" title="Note">\n  This is a standard Prose UI callout.\n</Callout>\n',
+                  )
+                }
+              >
+                <Info className="mr-2 h-4 w-4" />
+                Standard Callout
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={() =>
+                  insertComponent("\n<BlockMath>\n  e = mc^2\n</BlockMath>\n")
+                }
+              >
+                <Hash className="mr-2 h-4 w-4" />
+                Math Block
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
+
+        <Separator orientation="vertical" className="h-6" />
+
         {/* Lists Section */}
         {hasExtension("list") && (
           <div className="flex items-center gap-1">
@@ -1155,7 +1404,14 @@ function Toolbar({
           {hasExtension("image") && (
             <Tooltip>
               <TooltipTrigger asChild>
-                <Button size="sm" variant="ghost" onClick={openImageDialog}>
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  onClick={() => {
+                    setInsertionMode("default");
+                    openImageDialog();
+                  }}
+                >
                   <ImageIcon className="h-4 w-4" />
                 </Button>
               </TooltipTrigger>
@@ -1463,6 +1719,9 @@ function EditorContent({
 }) {
   const { commands, hasExtension, activeStates, lexical: editor } = useEditor();
   const [mode, setMode] = useState<EditorMode>("visual");
+  const [insertionMode, setInsertionMode] = useState<"default" | "frame">(
+    "default",
+  );
   const [content, setContent] = useState({ html: "", markdown: "" });
   const [linkDialogOpen, setLinkDialogOpen] = useState(false);
   const [imageDialogOpen, setImageDialogOpen] = useState(false);
@@ -1532,7 +1791,7 @@ function EditorContent({
   );
 
   const handleImageSubmit = useCallback(
-    ({
+    async ({
       activeTab,
       url,
       alt,
@@ -1545,13 +1804,58 @@ function EditorContent({
       caption: string;
       file: File | null;
     }) => {
+      if (insertionMode === "frame") {
+        let finalUrl = "";
+
+        // Remove eventual quotation marks from alt text
+        const re = /"[^"]*"/i;
+        if (!re.test(alt)) {
+          alt = "";
+        }
+
+        if (activeTab === "upload" && file) {
+          const toastId = toast.loading("Uploading image...");
+          try {
+            const formData = new FormData();
+            formData.append("file", file);
+            const result = await uploadImage(formData);
+
+            if (result.success && result.url) {
+              finalUrl = result.url;
+              toast.dismiss(toastId);
+            } else {
+              toast.error("Upload failed", { id: toastId });
+              console.log("Upload failed:", result);
+              return;
+            }
+          } catch (error) {
+            toast.error("Error uploading image", { id: toastId });
+            return;
+          }
+        } else if (activeTab === "url") {
+          finalUrl = url.trim();
+        }
+
+        if (finalUrl) {
+          const mdx = `
+<Frame align="center">
+  <Image src="${finalUrl}" alt="${alt || "Image"}" />
+  ${caption ? `<Caption>${caption}</Caption>` : ""}
+</Frame>
+`;
+          commands.insertHTMLEmbed(mdx);
+        }
+        setInsertionMode("default");
+        return;
+      }
+
       if (activeTab === "upload" && file) {
         imageHandlers.insertImageFromFile(file, alt, caption);
       } else if (activeTab === "url" && url.trim()) {
         imageHandlers.insertImageFromUrl(url.trim(), alt, caption);
       }
     },
-    [imageHandlers],
+    [imageHandlers, insertionMode, commands],
   );
 
   const handleModeChange = (newMode: EditorMode) => {
@@ -1607,6 +1911,8 @@ function EditorContent({
               activeStates={activeStates}
               openLinkDialog={openLinkDialog}
               openImageDialog={() => setImageDialogOpen(true)}
+              setInsertionMode={setInsertionMode}
+              editor={editor}
             />
           </div>
         </div>

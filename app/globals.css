@@ -1,6 +1,8 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 @import "@daveyplate/better-auth-ui/css";
+@import "@prose-ui/style/prose-ui.css";
+@import "@prose-ui/style/katex.min.css";
 @plugin "@tailwindcss/typography";
 @custom-variant dark (&:is(.dark *));
 
@@ -125,4 +127,3 @@
     @apply bg-background text-foreground;
   }
 }
-
