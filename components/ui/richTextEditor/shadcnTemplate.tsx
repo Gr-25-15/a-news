@@ -54,6 +54,7 @@ import {
   $getSelection,
   $isRangeSelection,
   $getNearestNodeFromDOMNode,
+  $getNodeByKey,
 } from "lexical";
 import {
   Bold,
@@ -286,35 +287,46 @@ export const extensions = [
     }) => {
       const [editor] = useLexicalComposerContext();
       const isFrame = html.includes("<Frame");
+      const [isCaptionDialogOpen, setIsCaptionDialogOpen] = useState(false);
+      const [targetNodeKey, setTargetNodeKey] = useState<string | null>(null);
 
       const handleEditCaption = (e: React.MouseEvent) => {
         e.stopPropagation();
-        const currentCaption =
-          html.match(/<Caption>(.*?)<\/Caption>/)?.[1] || "";
-        const newCaption = prompt("Enter caption:", currentCaption);
-        if (newCaption === null) return;
-
-        editor.update(() => {
+        editor.read(() => {
           const node = $getNearestNodeFromDOMNode(
             e.currentTarget as HTMLElement,
           );
+          if (node) {
+            setTargetNodeKey(node.getKey());
+            setIsCaptionDialogOpen(true);
+          }
+        });
+      };
+
+      const handleCaptionSubmit = (newCaption: string) => {
+        if (!targetNodeKey) return;
+        editor.update(() => {
+          const node = $getNodeByKey(targetNodeKey);
           if (node && typeof (node as any).setPayload === "function") {
             let newHtml = html;
             if (newHtml.includes("<Caption>")) {
               newHtml = newHtml.replace(
                 /<Caption>.*?<\/Caption>/,
-                `<Caption>${newCaption}<\/Caption>`,
+                `<Caption>${newCaption}</Caption>`,
               );
             } else {
               newHtml = newHtml.replace(
-                "<\/Frame>",
-                `  <Caption>${newCaption}<\/Caption>\n<\/Frame>`,
+                "</Frame>",
+                `  <Caption>${newCaption}</Caption>\n</Frame>`,
               );
             }
             (node as any).setPayload({ html: newHtml });
           }
         });
+        setTargetNodeKey(null);
       };
+
+      const currentCaption = html.match(/<Caption>(.*?)<\/Caption>/)?.[1] || "";
 
       return (
         <div
@@ -355,6 +367,12 @@ export const extensions = [
               Edit Source
             </Button>
           </div>
+          <CaptionDialog
+            isOpen={isCaptionDialogOpen}
+            onOpenChange={setIsCaptionDialogOpen}
+            initialCaption={currentCaption}
+            onSubmit={handleCaptionSubmit}
+          />
         </div>
       );
     },
@@ -741,6 +759,77 @@ function ImageDialog({
   );
 }
 
+// Caption Dialog Component
+function CaptionDialog({
+  isOpen,
+  onOpenChange,
+  initialCaption = "",
+  onSubmit,
+}: {
+  isOpen: boolean;
+  onOpenChange: (open: boolean) => void;
+  initialCaption?: string;
+  onSubmit: (caption: string) => void;
+}) {
+  const [caption, setCaption] = useState(initialCaption);
+
+  useEffect(() => {
+    if (isOpen) {
+      setCaption(initialCaption);
+    }
+  }, [isOpen, initialCaption]);
+
+  const handleSubmit = () => {
+    onSubmit(caption);
+    onOpenChange(false);
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      handleSubmit();
+    }
+  };
+
+  return (
+    <ShadcnDialog open={isOpen} onOpenChange={onOpenChange}>
+      <DialogContent className="sm:max-w-md">
+        <DialogHeader>
+          <div className="flex items-center gap-2">
+            <Type className="h-5 w-5" />
+            <DialogTitle>Edit Caption</DialogTitle>
+          </div>
+        </DialogHeader>
+
+        <div className="space-y-4">
+          <div className="space-y-2">
+            <Label htmlFor="caption-text">Caption</Label>
+            <Input
+              id="caption-text"
+              placeholder="Enter caption..."
+              value={caption}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                setCaption(e.target.value)
+              }
+              onKeyDown={handleKeyDown}
+              autoFocus
+            />
+          </div>
+        </div>
+
+        <DialogFooter>
+          <div className="flex justify-end gap-2">
+            <Button variant="outline" onClick={() => onOpenChange(false)}>
+              Cancel
+            </Button>
+            <Button onClick={handleSubmit}>Save Caption</Button>
+          </div>
+        </DialogFooter>
+      </DialogContent>
+    </ShadcnDialog>
+  );
+}
+
 // Floating Toolbar Component
 function FloatingToolbarRenderer({
   openLinkDialog,
@@ -750,6 +839,7 @@ function FloatingToolbarRenderer({
   const { commands, activeStates, extensions, hasExtension } = useEditor();
   const [isVisible, setIsVisible] = useState(false);
   const [selectionRect, setSelectionRect] = useState<any>(null);
+  const [isCaptionDialogOpen, setIsCaptionDialogOpen] = useState(false);
 
   const floatingExtension = extensions.find(
     (ext) => ext.name === "floatingToolbar",
@@ -768,6 +858,10 @@ function FloatingToolbarRenderer({
     const interval = setInterval(checkState, 200);
     return () => clearInterval(interval);
   }, [floatingExtension]);
+
+  const handleCaptionSubmit = (caption: string) => {
+    commands.setImageCaption(caption);
+  };
 
   if (!isVisible || !selectionRect) return null;
 
@@ -844,10 +938,7 @@ function FloatingToolbarRenderer({
                 <Button
                   size="sm"
                   variant="ghost"
-                  onClick={() => {
-                    const caption = prompt("Enter caption:") || "";
-                    commands.setImageCaption(caption);
-                  }}
+                  onClick={() => setIsCaptionDialogOpen(true)}
                 >
                   <Type className="h-4 w-4" />
                 </Button>
@@ -992,6 +1083,12 @@ function FloatingToolbarRenderer({
           </>
         )}
       </div>
+      <CaptionDialog
+        isOpen={isCaptionDialogOpen}
+        onOpenChange={setIsCaptionDialogOpen}
+        initialCaption={""}
+        onSubmit={handleCaptionSubmit}
+      />
     </TooltipProvider>,
     document.body,
   );
@@ -1720,6 +1817,7 @@ function EditorContent({
               toast.dismiss(toastId);
             } else {
               toast.error("Upload failed", { id: toastId });
+              console.log("Upload failed:", result);
               return;
             }
           } catch (error) {
@@ -1732,11 +1830,11 @@ function EditorContent({
 
         if (finalUrl) {
           const mdx = `
-          <Frame align="center">
-            <Image src="${finalUrl}" alt="${alt || "Image"}" />
-            ${caption ? `<Caption>${caption}</Caption>` : ""}
-          </Frame>
-          `;
+<Frame align="center">
+  <Image src="${finalUrl}" alt="${alt || "Image"}" />
+  ${caption ? `<Caption>${caption}</Caption>` : ""}
+</Frame>
+`;
           commands.insertHTMLEmbed(mdx);
         }
         setInsertionMode("default");
