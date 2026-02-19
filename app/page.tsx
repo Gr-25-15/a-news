@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { getCompanyStock } from "./actions/getStock";
 import { ComponentExample } from "@/components/component-example";
 import { Card } from "@/components/ui/card";
@@ -11,36 +11,41 @@ import CreateArticle from "@/components/create-article-form";
 import { getCategoryFormData } from "./actions/getCategories";
 
 // --- Added card import ---
-import { IsaacCard } from "@/components/IsaacCard";
+import NewsList from "@/components/news-list";
 import { Button } from "@/components/ui/button";
+import { getArticlesWithContent } from "./actions/getArticles";
+import { Article } from "./generated/prisma/client";
+
+export interface ArticleWithContent {
+  id: string;
+  title: string;
+  content: string;
+}
 
 export default function Page() {
   const [stockData, setStockData] = useState<StockData | null>(null);
+  const [articles, setArticles] = useState<Article[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+
+  useEffect(() => {
+    const fetchArticles = async () => {
+      setIsLoading(true);
+      try {
+        const data = await getArticlesWithContent();
+        setArticles(data);
+        console.log("Fetched articles:", data);
+      } catch (err) {
+        console.error("Failed to fetch articles:", err);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchArticles();
+  }, []);
 
   return (
     <>
-      {/* --- Alex: New Isaac Cards start  --- */}
-      <section className="p-8 bg-slate-50 border-b mb-10">
-        <h1 className="text-xl font-bold mb-6 text-center text-slate-800 uppercase tracking-tight">
-          Isaac News Component
-        </h1>
-        <div className="flex gap-6 justify-center flex-wrap">
-          <IsaacCard
-            title="LOREM IPSUM"
-            description="Card Description - Lorem ipsum dolor sit amet, consectetur adipiscing elit."
-            isLocked={true}
-          />
-          <IsaacCard
-            title="LOREM IPSUM"
-            description="Card Description - Lorem ipsum dolor sit amet, consectetur adipiscing elit."
-            isLocked={false}
-          />
-        </div>
-      </section>
-      {/* --- END OF ISSAC CARD --- */}
-
-      {/* --- Earlier Code --- */}
-      <ComponentExample />
+      <NewsList articles={articles} />
       <Card className="p-4 mb-4 w-md m-auto">
         <h2 className="text-lg font-semibold mb-2">Market Data Fetcher</h2>
         <p>Click the button below to fetch stock data for Apple Inc. (AAPL).</p>
@@ -57,10 +62,10 @@ export default function Page() {
         </div>
       </Card>
 
-      <Card className="p-4 mb-4 w-md m-auto">
+      {/*<Card className="p-4 mb-4 w-md m-auto">
         <AiComponent />
       </Card>
-      <ShadcnTemplate />
+      <ShadcnTemplate />*/}
     </>
   );
 }
