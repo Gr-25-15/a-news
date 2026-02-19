@@ -4,13 +4,13 @@ import {
   ShadcnTemplate,
   type ShadcnTemplateRef,
 } from "./ui/richTextEditor/shadcnTemplate";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { useSession } from "@/lib/auth-client";
 import { createArticle } from "@/app/actions/manage-article";
 import z from "zod";
-import { useForm, FormProvider, Controller } from "react-hook-form";
+import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
   Field,
@@ -31,6 +31,7 @@ import { Switch } from "./ui/switch";
 import { Option } from "@/app/actions/getCategories";
 import { SingleFile } from "./ui/single-file-upload";
 import { SingleFileRef } from "./ui/single-file-upload";
+import { getArticleById } from "@/app/actions/getArticles";
 
 const schema = z.object({
   title: z.string().min(1, "Title is required"),
@@ -66,6 +67,34 @@ export default function CreateOrEditArticle({
       isSubscriberOnly: false,
     },
   });
+
+  useEffect(() => {
+    async function fetchArticleData() {
+      if (!articleId) return;
+
+      setIsLoading(true);
+      try {
+        const article = await getArticleById(articleId);
+        if (article) {
+          form.reset({
+            title: article.title,
+            description: article.description!,
+            categoryId: article.categoryId,
+            isPublished: article.isPublished,
+            isSubscriberOnly: article.isSubscriberOnly,
+            thumbnailUrl: article.thumbnailUrl!,
+            content: article.content,
+          });
+          editorRef.current?.injectMarkdown(article.content);
+        }
+      } catch (error) {
+        console.error("Failed to fetch article:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+    fetchArticleData();
+  }, [articleId, form]);
 
   async function onSubmit(data: z.infer<typeof schema>) {
     console.log("handleSave called with data:", data);
@@ -111,6 +140,7 @@ export default function CreateOrEditArticle({
     form.formState.isSubmitting,
   );
   console.log(form.formState.errors);
+
   return (
     <Card>
       <CardHeader>
