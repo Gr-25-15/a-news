@@ -1,75 +1,79 @@
-"use client";
-
-import { useState } from "react";
-import { Input } from "./ui/input";
-import { Button } from "./ui/button";
-import { Weather } from "../app/types/weather";
-import { LocateFixed, LucideIcon } from "lucide-react";
+import { Card, CardContent } from "./ui/card";
+import { Badge } from "./ui/badge";
+import { LucideIcon, ArrowUp, ArrowDown } from "lucide-react";
 import { symbolIcons } from "@/app/utils/weatherIcons";
+import { getSwedenWeather } from "@/app/actions/getWeather";
+import { Series } from "@/app/types/weather";
 
-export default function WeatherComponent() {
-  const [location, setLocation] = useState("");
-  const [weather, setWeather] = useState<Weather | null>(null);
-  const [error, setError] = useState<string | null>(null);
+function calculateHighLow(timeseries: Series[]) {
+  const next24h = timeseries.slice(0, 24);
+  const temps = next24h.map((s) => s.temp);
+  return {
+    high: Math.max(...temps),
+    low: Math.min(...temps),
+  };
+}
 
-  const weatherApiUrl = process.env.NEXT_PUBLIC_WEATHER_API_URL;
+export default async function WeatherWidget() {
+  const weatherData = await getSwedenWeather();
 
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    setWeather(null);
-    setError(null);
-
-    if (!weatherApiUrl) {
-      setError("Weather API URL is not defined.");
-      return;
-    }
-
-    const response = await fetch(
-      `${weatherApiUrl}forecast/location/${location}`,
+  if (!weatherData || weatherData.length === 0) {
+    return (
+      <Card className="w-full border-dashed">
+        <CardContent className="p-6 text-center text-sm text-muted-foreground">
+          No weather data available.
+        </CardContent>
+      </Card>
     );
-
-    if (!response.ok) {
-      setError("Please enter a valid location.");
-    }
-
-    const data = await response.json();
-
-    setWeather(data);
-    setError(null);
   }
-  return (
-    <div className="max-w-45 inline-block p-2 shadow-sm border">
-      <form onSubmit={handleSubmit} className="flex items-center">
-        <Input
-          value={location}
-          onChange={(e) => setLocation(e.target.value)}
-          placeholder="Enter a location"
-        />
-        <Button>
-          <LocateFixed />
-        </Button>
-      </form>
-      {error && <p className="mt-2 text-sm text-red-400">{error}</p>}
-      {weather &&
-        weather.timeseries.length > 0 &&
-        (() => {
-          const current = weather.timeseries[0];
-          const Icon: LucideIcon =
-            symbolIcons[current.symbol] || symbolIcons[28];
 
-          return (
-            <div className="mt-3 w-full">
-              <div className="flex items justify-between mr-1">
-                <h2 className="font-semibold truncate">
-                  {weather.location.name}
-                </h2>
-                <Icon className="w-6 h-6 shrink-0" />
+  return (
+    <div className="space-y-3">
+      {weatherData.map((weather) => {
+        const current = weather.timeseries[0];
+        const { high, low } = calculateHighLow(weather.timeseries);
+        const Icon: LucideIcon = symbolIcons[current.symbol] || symbolIcons[28];
+
+        return (
+          <Card
+            key={weather.location.place_id}
+            className="py-0 overflow-hidden border-muted/40 hover:bg-muted/50 transition-colors cursor-default"
+          >
+            <CardContent className="p-4">
+              <div className="flex items-center justify-between mb-2">
+                <div className="flex flex-col">
+                  <span className="font-bold text-sm tracking-tight">
+                    {weather.location.name}
+                  </span>
+                  <span className="text-xs text-muted-foreground capitalize">
+                    {current.summary}
+                  </span>
+                </div>
+                <Icon className="h-8 w-8 text-primary/80" strokeWidth={1.5} />
               </div>
-              <p className="font-extralight">{weather.timeseries[0].summary}</p>
-              <p>Temperature: {weather.timeseries[0].temp}°C</p>
-            </div>
-          );
-        })()}
+
+              <div className="flex items-end justify-between mt-4">
+                <div className="flex items-baseline gap-1">
+                  <span className="text-2xl font-bold tracking-tighter">
+                    {Math.round(current.temp)}°
+                  </span>
+                </div>
+
+                <div className="flex gap-2">
+                  <div className="flex items-center text-xs font-medium text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/30 px-1.5 py-0.5 rounded-md border border-emerald-100 dark:border-emerald-900/50">
+                    <ArrowUp className="h-3 w-3 mr-0.5" />
+                    {Math.round(high)}°
+                  </div>
+                  <div className="flex items-center text-xs font-medium text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-950/30 px-1.5 py-0.5 rounded-md border border-blue-100 dark:border-blue-900/50">
+                    <ArrowDown className="h-3 w-3 mr-0.5" />
+                    {Math.round(low)}°
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        );
+      })}
     </div>
   );
 }
