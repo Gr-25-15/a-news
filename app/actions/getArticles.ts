@@ -49,8 +49,22 @@ export async function getArticleById(id: string) {
 
 export type articleFull = Awaited<ReturnType<typeof getArticleById>>;
 
-export async function getArticlesWithContent() {
-  const articles = await prisma.article.findMany();
+export async function getArticlesWithContent(categoryName?: string) {
+  const articles = await prisma.article.findMany({
+    where: categoryName && categoryName !== "All"
+      ? {
+          Category: {
+            name: {
+              equals: categoryName,
+              mode: "insensitive",
+            },
+          },
+        }
+      : {},
+    include: {
+      Category: true,
+    },
+  });
 
   const articlesWithContent = await Promise.all(
     articles.map(async (article) => {

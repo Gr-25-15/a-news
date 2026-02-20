@@ -1,57 +1,17 @@
-"use client";
+import NewsList from "@/components/news-list";
+import { getArticlesWithContent } from "./actions/getArticles";
 
-import { useState } from "react";
-import { getCompanyStock } from "./actions/getStock";
-import { ComponentExample } from "@/components/component-example";
-import { Card } from "@/components/ui/card";
-import { ShadcnTemplate } from "@/components/ui/richTextEditor/shadcnTemplate";
-import type { StockData } from "./actions/getStock";
-import AiComponent from "@/components/ai-component";
-import CreateArticle from "@/components/create-edit-article-form";
-import { getCategoryFormData } from "./actions/getCategories";
+interface PageProps {
+  searchParams: Promise<{ category?: string }>;
+}
 
-// --- Added card import ---
-import { IsaacCard } from "@/components/IsaacCard";
-
-export default function Page() {
-  const [stockData, setStockData] = useState<StockData | null>(null);
+export default async function Page({ searchParams }: PageProps) {
+  const { category } = await searchParams;
+  const articles = await getArticlesWithContent(category);
 
   return (
     <>
-      {/* --- Alex: New Isaac Cards start  --- */}
-      <section className="p-8 bg-slate-50 border-b mb-10">
-        <h1 className="text-xl font-bold mb-6 text-center text-slate-800 uppercase tracking-tight">
-          Isaac News Component
-        </h1>
-        <div className="flex gap-6 justify-center flex-wrap">
-          <IsaacCard
-            title="LOREM IPSUM"
-            description="Card Description - Lorem ipsum dolor sit amet, consectetur adipiscing elit."
-            isLocked={true}
-          />
-          <IsaacCard
-            title="LOREM IPSUM"
-            description="Card Description - Lorem ipsum dolor sit amet, consectetur adipiscing elit."
-            isLocked={false}
-          />
-        </div>
-      </section>
-      {/* --- END OF ISSAC CARD --- */}
-
-      {/* --- Earlier Code --- */}
-      <ComponentExample />
-      <Card className="p-4 mb-4 w-md m-auto">
-        <h2 className="text-lg font-semibold mb-2">Market Data Fetcher</h2>
-        <p>Click the button below to fetch stock data for Apple Inc. (AAPL).</p>
-        <div>
-          {stockData && <pre>{JSON.stringify(stockData, null, 2)}</pre>}
-        </div>
-      </Card>
-
-      <Card className="p-4 mb-4 w-md m-auto">
-        <AiComponent />
-      </Card>
-      <ShadcnTemplate />
+      <NewsList articles={articles} category={category} />
     </>
   );
 }
