@@ -144,7 +144,7 @@ export async function editArticle(
         title,
         contentUrl: contentUrl,
         categoryId,
-        authorId: editorId,
+        editorId: editorId,
         description,
         isPublished,
         isSubscriberOnly,
