@@ -1,5 +1,4 @@
 import { Card, CardContent } from "./ui/card";
-import { Badge } from "./ui/badge";
 import { LucideIcon, ArrowUp, ArrowDown } from "lucide-react";
 import { symbolIcons } from "@/app/utils/weatherIcons";
 import { getSwedenWeather } from "@/app/actions/getWeather";

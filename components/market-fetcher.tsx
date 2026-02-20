@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import { useEffect, useState } from "react";
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -158,7 +158,7 @@ export default function MarketFetcher() {
                       <span className="font-bold text-sm tracking-tight">
                         {stock.symbol}
                       </span>
-                      <span className="text-xs text-muted-foreground truncate max-w-[80px]">
+                      <span className="text-xs text-muted-foreground truncate max-w-20">
                         {COMPANIES.find((c) => c.symbol === stock.symbol)?.name}
                       </span>
                     </div>
@@ -202,7 +202,7 @@ export default function MarketFetcher() {
                             ))}
                           </div>
                         </div>
-                        <div className="h-[180px] w-full">
+                        <div className="h-45 w-full">
                           {loadingHistory ? (
                             <div className="h-full flex flex-col items-center justify-center gap-1">
                               <Loader2 className="h-5 w-5 animate-spin text-primary/30" />
