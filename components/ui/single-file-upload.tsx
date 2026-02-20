@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, forwardRef, useImperativeHandle } from "react";
+import { useState, forwardRef, useImperativeHandle, useEffect } from "react";
 import { uploadImage } from "@/app/actions/upload";
 import {
   Dropzone,
@@ -16,67 +16,88 @@ import {
   InfiniteProgress,
   useDropzone,
 } from "@/components/ui/dropzone";
+import Image from "next/image";
 
 export interface SingleFileRef {
   uploadedImageUrl: string | undefined;
 }
 
-export const SingleFile = forwardRef<SingleFileRef, object>((props, ref) => {
-  const [uploadedImageUrl, setUploadedImageUrl] = useState<string | undefined>(
-    undefined,
-  );
+interface SingleFileProps {
+  initialImageUrl?: string;
+}
 
-  useImperativeHandle(ref, () => ({
-    uploadedImageUrl,
-  }));
+export const SingleFile = forwardRef<SingleFileRef, SingleFileProps>(
+  ({ initialImageUrl }, ref) => {
+    const [uploadedImageUrl, setUploadedImageUrl] = useState<
+      string | undefined
+    >(initialImageUrl);
 
-  const dropzone = useDropzone({
-    onDropFile: async (file: File) => {
-      const formData = new FormData();
-      formData.append("file", file);
-      const result = await uploadImage(formData);
-      if (result.success && result.url) {
-        setUploadedImageUrl(result.url);
-        return { status: "success", result: result.url };
-      }
-      throw new Error(result.error || "Upload failed");
-    },
-    validation: {
-      accept: {
-        "image/*": [".png", ".jpg", ".jpeg"],
+    useEffect(() => {
+      setUploadedImageUrl(initialImageUrl);
+    }, [initialImageUrl]);
+    useImperativeHandle(ref, () => ({
+      uploadedImageUrl,
+    }));
+
+    const dropzone = useDropzone({
+      onDropFile: async (file: File) => {
+        const formData = new FormData();
+        formData.append("file", file);
+        const result = await uploadImage(formData);
+        if (result.success && result.url) {
+          setUploadedImageUrl(result.url);
+          return { status: "success", result: result.url };
+        }
+        throw new Error(result.error || "Upload failed");
       },
-      maxSize: 10 * 1024 * 1024,
-      maxFiles: 1,
-    },
-    shiftOnMaxFiles: true,
-  });
+      validation: {
+        accept: {
+          "image/*": [".png", ".jpg", ".jpeg"],
+        },
+        maxSize: 10 * 1024 * 1024,
+        maxFiles: 1,
+      },
+      shiftOnMaxFiles: true,
+    });
 
-  return (
-    <Dropzone {...dropzone}>
-      <div className="flex justify-between">
-        <DropzoneMessage />
-      </div>
-      {uploadedImageUrl ? (
-        // eslint-disable-next-line @next/next/no-img-element
-        <img
-          src={uploadedImageUrl}
-          alt="Uploaded avatar"
-          className="w-32 h-32 object-cover rounded-full mx-auto"
-        />
-      ) : (
-        <DropZoneArea>
-          <DropzoneTrigger className="flex gap-8 bg-transparent text-sm">
-            <div className="flex flex-col gap-1 font-semibold">
-              <p>Upload thumbnail image</p>
-              <p className="text-xs text-muted-foreground">
-                Please select an image smaller than 10MB
-              </p>
-            </div>
-          </DropzoneTrigger>
-        </DropZoneArea>
-      )}
-    </Dropzone>
-  );
-});
+    return (
+      <Dropzone {...dropzone}>
+        <div className="flex justify-between">
+          <DropzoneMessage />
+        </div>
+        {uploadedImageUrl ? (
+          <div className="flex flex-col justify-center content-center">
+            <Image
+              src={uploadedImageUrl}
+              alt="Uploaded avatar"
+              width={128} // Add appropriate width
+              height={128} // Add appropriate height
+              className="w-32 h-32 object-cover rounded-full mx-auto"
+            />
+            <DropzoneRemoveFile
+              className="w-full mt-2 p-2 text-sm text-red-500 text-center rounded text-wrap"
+              onClick={() => {
+                setUploadedImageUrl(undefined);
+              }}
+            >
+              Remove Thumbnail
+            </DropzoneRemoveFile>
+          </div>
+        ) : (
+          <DropZoneArea>
+            <DropzoneTrigger className="flex gap-8 bg-transparent text-sm">
+              <div className="flex flex-col gap-1 font-semibold">
+                <p>Upload thumbnail image</p>
+                <p className="text-xs text-muted-foreground">
+                  Please select an image smaller than 10MB
+                </p>
+              </div>
+            </DropzoneTrigger>
+          </DropZoneArea>
+        )}
+      </Dropzone>
+    );
+  },
+);
 
 SingleFile.displayName = "SingleFile";

@@ -21,8 +21,6 @@ export async function createArticle(
   description?: string,
   content?: string,
 ) {
-  const session = await auth.api.getSession();
-
   try {
     // Check permissions
     const { success } = await auth.api.userHasPermission({
@@ -37,13 +35,12 @@ export async function createArticle(
       throw new Error("unauthorized");
     }
 
-  const session = await auth.api.getSession({ headers: await headers() });
-  if (!session) {
-    return { success: false, error: "Unauthorized" };
-  }
-  const authorId = session.user.id;
+    const session = await auth.api.getSession({ headers: await headers() });
+    if (!session) {
+      return { success: false, error: "Unauthorized" };
+    }
+    const authorId = session.user.id;
 
-    const userId = session.user.id;
     const slug = title
       .toLowerCase()
       .replace(/[^a-z0-9]+/g, "-")
@@ -72,7 +69,7 @@ export async function createArticle(
         title,
         contentUrl: contentUrl,
         categoryId,
-        authorId: userId,
+        authorId: authorId,
         description,
         isPublished,
         isSubscriberOnly,
@@ -89,14 +86,14 @@ export async function createArticle(
   }
 }
 export async function editArticle(
-  id: string,
-  contentUrl: string,
-  categoryId: string,
-  userId: string,
   title: string,
-  imageKey?: string,
-  featuredImage?: string,
-  type?: string,
+  categoryId: string,
+  isPublished: boolean,
+  isSubscriberOnly: boolean,
+  id: string,
+  thumbnailUrl?: string,
+  description?: string,
+  content?: string,
 ) {
   const { success } = await auth.api.userHasPermission({
     headers: await headers(),
@@ -117,21 +114,50 @@ export async function editArticle(
   const editorId = session.user.id;
 
   try {
-    await prisma.article.update({
+    const slug = title
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/(^-|-$)/g, "");
+
+    const filename = `${slug}-${randomUUID()}.md`;
+    const s3Key = `articles/${filename}`;
+
+    // Upload to S3
+    console.log(`Uploading content to S3: ${s3Key}`);
+    await s3Client.send(
+      new PutObjectCommand({
+        Bucket: S3_BUCKET,
+        Key: s3Key,
+        Body: content,
+        ContentType: "text/markdown",
+        ACL: "public-read",
+      }),
+    );
+
+    const contentUrl = `${process.env.S3_ENDPOINT}/${S3_BUCKET}/${s3Key}`;
+
+    const article = await prisma.article.update({
       where: {
         id,
       },
       data: {
-        contentUrl,
-        categoryId,
         title,
-        editorId,
+        contentUrl: contentUrl,
+        categoryId,
+        editorId: editorId,
+        description,
+        isPublished,
+        isSubscriberOnly,
+        thumbnailUrl,
       },
     });
+
     revalidatePath("/");
-    return { success: true };
-  } catch (err) {
-    return { success: false, error: "Failed to edit article" };
+    console.log(`Successfully created article: ${title}`);
+    return { success: true, article: article };
+  } catch (e) {
+    console.error(`Error processing topic "${title}":`, e);
+    return { success: false, error: "Failed to update article" };
   }
 }
 
@@ -155,7 +181,7 @@ export async function deleteArticle(id: string) {
     });
     revalidatePath("/");
     return { success: true };
-  } catch (err) {
+  } catch (e) {
     return { success: false, error: "Failed to delete article" };
   }
 }
