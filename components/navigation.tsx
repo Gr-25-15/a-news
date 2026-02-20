@@ -77,7 +77,7 @@ export default function Navigation({
   // TODO: Limit category count if we add more than 5
 
   return (
-    <header className="flex items-center justify-between">
+    <header className="flex bg-popover items-center justify-between">
       <div className="w-full max-w-md m-auto py-12 px-8">
         <h1 className="font-sans text-7xl text-center mb-3 font-semibold">
           A-News
@@ -92,11 +92,7 @@ export default function Navigation({
                       asChild
                       className={navigationMenuTriggerStyle()}
                     >
-                      <Link
-                        href={cat.href}
-                      >
-                        {cat.title}
-                      </Link>
+                      <Link href={cat.href}>{cat.title}</Link>
                     </NavigationMenuLink>
                   </NavigationMenuItem>
                 ))}

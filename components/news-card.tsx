@@ -37,7 +37,7 @@ export function NewsCard({
         </div>
       </CardHeader>
 
-      <CardContent className="p-0 relative h-60 bg-accent">
+      <CardContent className="p-0 relative h-full bg-accent aspect-video">
         {isLocked ? (
           // The "Locked" state logic [cite: 5]
           <div className="absolute inset-0 bg-background/60 backdrop-blur-md flex flex-col items-center justify-center p-6 text-center">

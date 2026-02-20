@@ -10,8 +10,8 @@ export default async function Page({ searchParams }: PageProps) {
   const articles = await getArticlesWithContent(category);
 
   return (
-    <>
+    <div className="bg-card">
       <NewsList articles={articles} category={category} />
-    </>
+    </div>
   );
 }
