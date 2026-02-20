@@ -32,6 +32,7 @@ import { Option } from "@/app/actions/getCategories";
 import { SingleFile } from "./ui/single-file-upload";
 import { SingleFileRef } from "./ui/single-file-upload";
 import { getArticleById } from "@/app/actions/getArticles";
+import { useRouter } from "next/navigation";
 
 const schema = z.object({
   title: z.string().min(1, "Title is required"),
@@ -47,17 +48,20 @@ interface CreateOrEditArticleProps {
   categories?: Option[];
   articleId?: string;
   isEditing: boolean;
+  onSubmissionSuccess?: () => void;
 }
 
 export default function CreateOrEditArticle({
   categories,
   articleId,
   isEditing,
+  onSubmissionSuccess,
 }: CreateOrEditArticleProps) {
   const editorRef = useRef<ShadcnTemplateRef>(null);
   const fileUploadRef = useRef<SingleFileRef>(null);
   const [isLoading, setIsLoading] = useState(false);
   const session = useSession(); // Get session internally
+  const router = useRouter();
 
   const form = useForm({
     resolver: zodResolver(schema),
@@ -146,6 +150,12 @@ export default function CreateOrEditArticle({
         "isSubmitting:",
         form.formState.isSubmitting,
       );
+      onSubmissionSuccess?.(); // Notify parent of submission success
+      if (isEditing) {
+        router.push(`/articles/${articleId}`);
+      } else {
+        router.push("/");
+      }
     }
   }
 
@@ -154,6 +164,7 @@ export default function CreateOrEditArticle({
     isLoading,
     "isSubmitting:",
     form.formState.isSubmitting,
+    form.getValues("thumbnailUrl"),
   );
   console.log(form.formState.errors);
 

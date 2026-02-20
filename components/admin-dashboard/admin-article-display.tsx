@@ -35,6 +35,7 @@ export default function AdminDisplayArticle({
           articleId={articleId}
           categories={categories}
           isEditing={isEditing}
+          onSubmissionSuccess={() => setIsEditing(false)}
         />
       ) : (
         <main className="container mx-auto py-10 px-4">
