@@ -7,6 +7,7 @@ import Navigation from "@/components/navigation";
 import { getCategoryLinks } from "./actions/getCategories";
 import MarketFetcher from "@/components/market-fetcher";
 import WeatherWidget from "@/components/weather-component";
+import { SidebarSheets } from "@/components/sidebar-sheets";
 
 const figtree = Figtree({ subsets: ["latin"], variable: "--font-sans" });
 
@@ -39,22 +40,26 @@ export default async function RootLayout({
       >
         <Providers>
           <Navigation categories={categories} />
-          <div className="max-w-360 mx-auto grid grid-cols-1 lg:grid-cols-[280px_1fr_320px] gap-8 px-4">
+          <SidebarSheets
+            marketContent={<MarketFetcher />}
+            weatherContent={<WeatherWidget />}
+          />
+          <div className="max-w-400 mx-auto grid grid-cols-1 lg:grid-cols-[minmax(220px,300px)_1fr_minmax(220px,300px)] gap-5 px-4">
             <aside className="hidden lg:block">
-              <div className="sticky top-20 h-[calc(100vh-5rem)] overflow-y-auto py-8">
-                <p className="text-sm font-semibold mb-6 uppercase tracking-wider text-muted-foreground">
-                  Market
+              <div className="sticky top-20 h-[calc(100vh-5rem)] overflow-y-auto py-8 text-left">
+                <p className="text-sm font-semibold mb-6 uppercase tracking-wider text-muted-foreground font-sans">
+                  Market Watch
                 </p>
                 <MarketFetcher />
               </div>
             </aside>
 
-            <main className="min-w-0">{children}</main>
+            <main className="min-w-0 lg:min-w-125 pb-20">{children}</main>
 
-            <aside className="hidden xl:block">
-              <div className="sticky top-20 h-[calc(100vh-5rem)] overflow-y-auto py-8">
-                <p className="text-sm font-semibold mb-6 uppercase tracking-wider text-muted-foreground">
-                  Weather
+            <aside className="hidden lg:block">
+              <div className="sticky top-20 h-[calc(100vh-5rem)] overflow-y-auto py-8 text-left">
+                <p className="text-sm font-semibold mb-6 uppercase tracking-wider text-muted-foreground font-sans">
+                  Weather Forecast
                 </p>
                 <WeatherWidget />
               </div>
