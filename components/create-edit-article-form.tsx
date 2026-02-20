@@ -321,7 +321,12 @@ export default function CreateOrEditArticle({
         </form>
 
         <Field>
-          <Button type="submit" disabled={isLoading} form="form-rhf-article">
+          <Button
+            className="rounded"
+            type="submit"
+            disabled={isLoading}
+            form="form-rhf-article"
+          >
             Save article
           </Button>
         </Field>

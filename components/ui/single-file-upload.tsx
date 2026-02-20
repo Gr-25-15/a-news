@@ -66,7 +66,7 @@ export const SingleFile = forwardRef<SingleFileRef, SingleFileProps>(
           <DropzoneMessage />
         </div>
         {uploadedImageUrl ? (
-          <div>
+          <div className="flex flex-col justify-center content-center">
             <Image
               src={uploadedImageUrl}
               alt="Uploaded avatar"
@@ -75,11 +75,13 @@ export const SingleFile = forwardRef<SingleFileRef, SingleFileProps>(
               className="w-32 h-32 object-cover rounded-full mx-auto"
             />
             <DropzoneRemoveFile
+              className="w-full mt-2 p-2 text-sm text-red-500 text-center rounded text-wrap"
               onClick={() => {
                 setUploadedImageUrl(undefined);
-                dropzone.removeFile();
               }}
-            />
+            >
+              Remove Thumbnail
+            </DropzoneRemoveFile>
           </div>
         ) : (
           <DropZoneArea>
