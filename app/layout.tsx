@@ -44,9 +44,9 @@ export default async function RootLayout({
             marketContent={<MarketFetcher />}
             weatherContent={<WeatherWidget />}
           />
-          <div className="max-w-400 mx-auto grid grid-cols-1 lg:grid-cols-[minmax(220px,300px)_1fr_minmax(220px,300px)] gap-5 px-4">
+          <div className="mx-auto grid grid-cols-1 lg:grid-cols-[minmax(220px,300px)_1fr_minmax(220px,300px)] gap-5 px-4">
             <aside className="hidden lg:block">
-              <div className="sticky top-20 h-[calc(100vh-5rem)] overflow-y-auto py-8 text-left">
+              <div className="sticky top-20 h-[calc(100vh-5rem)] overflow-y-auto p-8 text-left">
                 <p className="text-sm font-semibold mb-6 uppercase tracking-wider text-muted-foreground font-sans">
                   Market Watch
                 </p>
@@ -57,7 +57,7 @@ export default async function RootLayout({
             <main className="min-w-0 lg:min-w-125 pb-20">{children}</main>
 
             <aside className="hidden lg:block">
-              <div className="sticky top-20 h-[calc(100vh-5rem)] overflow-y-auto py-8 text-left">
+              <div className="sticky top-20 h-[calc(100vh-5rem)] overflow-y-auto p-8 text-left">
                 <p className="text-sm font-semibold mb-6 uppercase tracking-wider text-muted-foreground font-sans">
                   Weather Forecast
                 </p>
