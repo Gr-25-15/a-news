@@ -5,6 +5,7 @@ import { Providers } from "./providers";
 
 import Navigation from "@/components/navigation";
 import { getCategoryLinks } from "./actions/getCategories";
+import MarketFetcher from "@/components/market-fetcher";
 
 const figtree = Figtree({ subsets: ["latin"], variable: "--font-sans" });
 
@@ -36,10 +37,28 @@ export default async function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <Providers>
-          <Navigation
-            categories={categories}
-          />
-          {children}
+          <Navigation categories={categories} />
+          <div className="max-w-360 mx-auto grid grid-cols-1 lg:grid-cols-[280px_1fr_320px] gap-8 px-4">
+            <aside className="hidden lg:block">
+              <div className="sticky top-20 h-[calc(100vh-5rem)] overflow-y-auto py-8">
+                <p className="text-sm font-semibold mb-4 uppercase tracking-wider text-muted-foreground">
+                  Market
+                </p>
+                <MarketFetcher />
+              </div>
+            </aside>
+
+            <main className="py-8 min-w-0">{children}</main>
+
+            <aside className="hidden xl:block">
+              <div className="sticky top-20 h-[calc(100vh-5rem)] overflow-y-auto py-8">
+                <p className="text-sm font-semibold mb-4 uppercase tracking-wider text-muted-foreground">
+                  Weather
+                </p>
+                Right Sidebar Widgets Go Here
+              </div>
+            </aside>
+          </div>
         </Providers>
       </body>
     </html>
