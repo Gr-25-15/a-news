@@ -90,7 +90,7 @@ export async function editArticle(
   categoryId: string,
   isPublished: boolean,
   isSubscriberOnly: boolean,
-  id?: string,
+  id: string,
   thumbnailUrl?: string,
   description?: string,
   content?: string,

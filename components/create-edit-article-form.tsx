@@ -119,7 +119,7 @@ export default function CreateOrEditArticle({
       if (!session.data) {
         throw new Error("Session not found");
       }
-      if (isEditing) {
+      if (isEditing && articleId) {
         await editArticle(
           form.getValues("title"),
           form.getValues("categoryId"),
