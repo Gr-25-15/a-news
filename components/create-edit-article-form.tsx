@@ -4,13 +4,13 @@ import {
   ShadcnTemplate,
   type ShadcnTemplateRef,
 } from "./ui/richTextEditor/shadcnTemplate";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { useSession } from "@/lib/auth-client";
-import { createArticle } from "@/app/actions/manage-article";
+import { createArticle, editArticle } from "@/app/actions/manage-article";
 import z from "zod";
-import { useForm, FormProvider, Controller } from "react-hook-form";
+import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
   Field,
@@ -29,8 +29,10 @@ import {
 } from "./ui/select";
 import { Switch } from "./ui/switch";
 import { Option } from "@/app/actions/getCategories";
-import { SingleFile } from "./ui/single-file-upload";
-import { SingleFileRef } from "./ui/single-file-upload";
+import { SingleFile, SingleFileRef } from "./ui/single-file-upload";
+import { getArticleById } from "@/app/actions/getArticles";
+import { useRouter } from "next/navigation";
+import AiComponent from "./ai-component";
 
 const schema = z.object({
   title: z.string().min(1, "Title is required"),
@@ -45,16 +47,21 @@ const schema = z.object({
 interface CreateOrEditArticleProps {
   categories?: Option[];
   articleId?: string;
+  isEditing: boolean;
+  onSubmissionSuccess?: () => void;
 }
 
 export default function CreateOrEditArticle({
   categories,
   articleId,
+  isEditing,
+  onSubmissionSuccess,
 }: CreateOrEditArticleProps) {
   const editorRef = useRef<ShadcnTemplateRef>(null);
   const fileUploadRef = useRef<SingleFileRef>(null);
   const [isLoading, setIsLoading] = useState(false);
   const session = useSession(); // Get session internally
+  const router = useRouter();
 
   const form = useForm({
     resolver: zodResolver(schema),
@@ -64,8 +71,37 @@ export default function CreateOrEditArticle({
       categoryId: "",
       isPublished: false,
       isSubscriberOnly: false,
+      thumbnailUrl: "", // Initialize thumbnailUrl here
     },
   });
+
+  useEffect(() => {
+    async function fetchArticleData() {
+      if (!articleId) return;
+
+      setIsLoading(true);
+      try {
+        const article = await getArticleById(articleId);
+        if (article) {
+          form.reset({
+            title: article.title,
+            description: article.description ?? "",
+            categoryId: article.categoryId,
+            isPublished: article.isPublished,
+            isSubscriberOnly: article.isSubscriberOnly,
+            thumbnailUrl: article.thumbnailUrl ?? "",
+            content: article.content,
+          });
+          editorRef.current?.injectMarkdown(article.content);
+        }
+      } catch (error) {
+        console.error("Failed to fetch article:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+    fetchArticleData();
+  }, [articleId, form]);
 
   async function onSubmit(data: z.infer<typeof schema>) {
     console.log("handleSave called with data:", data);
@@ -73,6 +109,7 @@ export default function CreateOrEditArticle({
     console.log(data);
     const markdownContent = editorRef.current?.getMarkdown();
     const thumbnailUrl = fileUploadRef.current?.uploadedImageUrl;
+
     form.setValue("content", markdownContent || "");
     form.setValue("thumbnailUrl", thumbnailUrl || ""); //TODO: fix the singlefile component to retrive it's value
     console.log("Title:", form.getValues("title"));
@@ -82,15 +119,28 @@ export default function CreateOrEditArticle({
       if (!session.data) {
         throw new Error("Session not found");
       }
-      await createArticle(
-        form.getValues("title"),
-        form.getValues("categoryId"),
-        form.getValues("isPublished"),
-        form.getValues("isSubscriberOnly"),
-        form.getValues("thumbnailUrl"),
-        form.getValues("description"),
-        form.getValues("content"),
-      );
+      if (isEditing && articleId) {
+        await editArticle(
+          form.getValues("title"),
+          form.getValues("categoryId"),
+          form.getValues("isPublished"),
+          form.getValues("isSubscriberOnly"),
+          articleId,
+          form.getValues("thumbnailUrl"),
+          form.getValues("description"),
+          form.getValues("content"),
+        );
+      } else {
+        await createArticle(
+          form.getValues("title"),
+          form.getValues("categoryId"),
+          form.getValues("isPublished"),
+          form.getValues("isSubscriberOnly"),
+          form.getValues("thumbnailUrl"),
+          form.getValues("description"),
+          form.getValues("content"),
+        );
+      }
     } catch (error) {
       console.error((error as Error).message);
     } finally {
@@ -101,6 +151,12 @@ export default function CreateOrEditArticle({
         "isSubmitting:",
         form.formState.isSubmitting,
       );
+      onSubmissionSuccess?.(); // Notify parent of submission success
+      if (isEditing) {
+        router.push(`/articles/${articleId}`);
+      } else {
+        router.push("/");
+      }
     }
   }
 
@@ -109,8 +165,10 @@ export default function CreateOrEditArticle({
     isLoading,
     "isSubmitting:",
     form.formState.isSubmitting,
+    form.getValues("thumbnailUrl"),
   );
   console.log(form.formState.errors);
+
   return (
     <Card>
       <CardHeader>
@@ -129,7 +187,6 @@ export default function CreateOrEditArticle({
               <FieldError errors={[form.formState.errors.title]} />
             </FieldContent>
           </Field>
-
           <Field className="mb-4">
             <FieldLabel>Description</FieldLabel>
             <FieldContent>
@@ -137,7 +194,6 @@ export default function CreateOrEditArticle({
               <FieldError errors={[form.formState.errors.description]} />
             </FieldContent>
           </Field>
-
           {categories ? (
             <Controller
               name="categoryId"
@@ -180,7 +236,6 @@ export default function CreateOrEditArticle({
           ) : (
             ""
           )}
-
           <Controller
             name="isPublished"
             control={form.control}
@@ -212,7 +267,6 @@ export default function CreateOrEditArticle({
               </Field>
             )}
           />
-
           <Controller
             name="isSubscriberOnly"
             control={form.control}
@@ -243,14 +297,26 @@ export default function CreateOrEditArticle({
               </Field>
             )}
           />
-
           <Field className="mb-4">
             <FieldLabel>Thumbnail</FieldLabel>
             <FieldContent>
-              <SingleFile ref={fileUploadRef} />
+              <SingleFile
+                initialImageUrl={form.getValues("thumbnailUrl")}
+                ref={fileUploadRef}
+              />
               <FieldError errors={[form.formState.errors.thumbnailUrl]} />
             </FieldContent>
           </Field>
+
+          <AiComponent
+            content={editorRef.current?.getMarkdown}
+            title={form.watch("title")}
+            onContentGenerated={(newContent) => {
+              form.setValue("content", newContent);
+              editorRef.current?.injectMarkdown(newContent);
+            }}
+          />
+          {/*Button to generate content with Ai*/}
 
           <Field className="mb-4">
             <FieldContent>
@@ -261,7 +327,12 @@ export default function CreateOrEditArticle({
         </form>
 
         <Field>
-          <Button type="submit" disabled={isLoading} form="form-rhf-article">
+          <Button
+            className="rounded"
+            type="submit"
+            disabled={isLoading}
+            form="form-rhf-article"
+          >
             Save article
           </Button>
         </Field>
