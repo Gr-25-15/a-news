@@ -85,11 +85,11 @@ export default function CreateOrEditArticle({
         if (article) {
           form.reset({
             title: article.title,
-            description: article.description!,
+            description: article.description ?? "",
             categoryId: article.categoryId,
             isPublished: article.isPublished,
             isSubscriberOnly: article.isSubscriberOnly,
-            thumbnailUrl: article.thumbnailUrl!,
+            thumbnailUrl: article.thumbnailUrl ?? "",
             content: article.content,
           });
           editorRef.current?.injectMarkdown(article.content);
