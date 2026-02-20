@@ -3,8 +3,22 @@
 import prisma from "@/lib/prisma";
 import { getS3Content } from "@/lib/s3";
 
-export async function getArticlesWithContent() {
-  const articles = await prisma.article.findMany();
+export async function getArticlesWithContent(categoryName?: string) {
+  const articles = await prisma.article.findMany({
+    where: categoryName && categoryName !== "All"
+      ? {
+          Category: {
+            name: {
+              equals: categoryName,
+              mode: "insensitive",
+            },
+          },
+        }
+      : {},
+    include: {
+      Category: true,
+    },
+  });
 
   const articlesWithContent = await Promise.all(
     articles.map(async (article) => {
