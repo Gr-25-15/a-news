@@ -49,7 +49,7 @@ export function NewsCard({
           </div>
         ) : (
           <Link
-            href={`/article/${id}`}
+            href={`/articles/${id}`}
             className="absolute bottom-4 right-4 flex items-center gap-1 text-sm font-semibold"
           >
             Go to article
