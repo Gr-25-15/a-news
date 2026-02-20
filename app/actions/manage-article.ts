@@ -157,7 +157,7 @@ export async function editArticle(
     return { success: true, article: article };
   } catch (e) {
     console.error(`Error processing topic "${title}":`, e);
-    return { success: false, error: "Failed to create article" };
+    return { success: false, error: "Failed to update article" };
   }
 }
 
