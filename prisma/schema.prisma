@@ -109,7 +109,7 @@ model Plans {
 }
 
 model Article {
-  id               String   @id
+  id               String   @id @default(uuid())
   title            String
   description      String?
   createdAt        DateTime @default(now())
@@ -128,14 +128,14 @@ model Article {
 }
 
 model Category {
-  id   String @id
+  id   String @id @default(uuid())
   name String @unique
 
   articles Article[]
 }
 
 model Address {
-  id      String @id
+  id      String @id @default(uuid())
   street  String
   city    String
   state   String
