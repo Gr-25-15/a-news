@@ -32,6 +32,7 @@ import { Option } from "@/app/actions/getCategories";
 import { SingleFile, SingleFileRef } from "./ui/single-file-upload";
 import { getArticleById } from "@/app/actions/getArticles";
 import { useRouter } from "next/navigation";
+import AiComponent from "./ai-component";
 
 const schema = z.object({
   title: z.string().min(1, "Title is required"),
@@ -186,7 +187,6 @@ export default function CreateOrEditArticle({
               <FieldError errors={[form.formState.errors.title]} />
             </FieldContent>
           </Field>
-
           <Field className="mb-4">
             <FieldLabel>Description</FieldLabel>
             <FieldContent>
@@ -194,7 +194,6 @@ export default function CreateOrEditArticle({
               <FieldError errors={[form.formState.errors.description]} />
             </FieldContent>
           </Field>
-
           {categories ? (
             <Controller
               name="categoryId"
@@ -237,7 +236,6 @@ export default function CreateOrEditArticle({
           ) : (
             ""
           )}
-
           <Controller
             name="isPublished"
             control={form.control}
@@ -269,7 +267,6 @@ export default function CreateOrEditArticle({
               </Field>
             )}
           />
-
           <Controller
             name="isSubscriberOnly"
             control={form.control}
@@ -300,7 +297,6 @@ export default function CreateOrEditArticle({
               </Field>
             )}
           />
-
           <Field className="mb-4">
             <FieldLabel>Thumbnail</FieldLabel>
             <FieldContent>
@@ -311,6 +307,16 @@ export default function CreateOrEditArticle({
               <FieldError errors={[form.formState.errors.thumbnailUrl]} />
             </FieldContent>
           </Field>
+
+          <AiComponent
+            content={editorRef.current?.getMarkdown}
+            title={form.watch("title")}
+            onContentGenerated={(newContent) => {
+              form.setValue("content", newContent);
+              editorRef.current?.injectMarkdown(newContent);
+            }}
+          />
+          {/*Button to generate content with Ai*/}
 
           <Field className="mb-4">
             <FieldContent>
