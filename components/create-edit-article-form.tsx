@@ -29,8 +29,7 @@ import {
 } from "./ui/select";
 import { Switch } from "./ui/switch";
 import { Option } from "@/app/actions/getCategories";
-import { SingleFile } from "./ui/single-file-upload";
-import { SingleFileRef } from "./ui/single-file-upload";
+import { SingleFile, SingleFileRef } from "./ui/single-file-upload";
 import { getArticleById } from "@/app/actions/getArticles";
 import { useRouter } from "next/navigation";
 
@@ -71,6 +70,7 @@ export default function CreateOrEditArticle({
       categoryId: "",
       isPublished: false,
       isSubscriberOnly: false,
+      thumbnailUrl: "", // Initialize thumbnailUrl here
     },
   });
 
@@ -304,7 +304,10 @@ export default function CreateOrEditArticle({
           <Field className="mb-4">
             <FieldLabel>Thumbnail</FieldLabel>
             <FieldContent>
-              <SingleFile ref={fileUploadRef} />
+              <SingleFile
+                initialImageUrl={form.getValues("thumbnailUrl")}
+                ref={fileUploadRef}
+              />
               <FieldError errors={[form.formState.errors.thumbnailUrl]} />
             </FieldContent>
           </Field>
