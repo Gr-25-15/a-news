@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { UserManagementTable } from "@/components/admin-dashboard/user-management";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
 import { userListType } from "@/app/actions/manageUsers";
@@ -17,13 +18,33 @@ export default function AdminOverview({
   userList: userListType;
   articleList: articleList;
 }) {
+  const [activeTab, setActiveTab] = useState("articles");
+
   return (
     <div>
       <p>Hello {user.name}</p>
-      <Tabs defaultValue="articles">
-        <TabsList>
-          <TabsTrigger value="articles">Articles</TabsTrigger>
-          <TabsTrigger value="users">Users</TabsTrigger>
+      <Tabs value={activeTab} onValueChange={setActiveTab}>
+        <TabsList variant="line">
+          <TabsTrigger
+            value="articles"
+            style={
+              activeTab === "articles"
+                ? { color: "var(--primary-foreground)" }
+                : {}
+            }
+          >
+            Articles
+          </TabsTrigger>
+          <TabsTrigger
+            value="users"
+            style={
+              activeTab === "users"
+                ? { color: "var(--primary-foreground)" }
+                : {}
+            }
+          >
+            Users
+          </TabsTrigger>
         </TabsList>
         <TabsContent value="articles">
           <Card>

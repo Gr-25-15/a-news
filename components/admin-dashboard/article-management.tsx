@@ -20,7 +20,10 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "../ui/dropdown-menu";
-import { updateArticleStatus } from "@/app/actions/manage-article";
+import {
+  deleteArticle,
+  updateArticleStatus,
+} from "@/app/actions/manage-article";
 
 export function ArticleManagementTable({
   ArticleList,
@@ -80,10 +83,16 @@ export function ArticleManagementTable({
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
-                  <DropdownMenuItem>Edit</DropdownMenuItem>
-                  <DropdownMenuItem>Duplicate</DropdownMenuItem>
+                  <DropdownMenuItem
+                    onClick={() => router.push(`/articles/${article.id}`)}
+                  >
+                    Edit
+                  </DropdownMenuItem>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem variant="destructive">
+                  <DropdownMenuItem
+                    variant="destructive"
+                    onClick={async () => await deleteArticle(article.id)}
+                  >
                     Delete
                   </DropdownMenuItem>
                 </DropdownMenuContent>

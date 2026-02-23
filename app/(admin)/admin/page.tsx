@@ -21,7 +21,6 @@ export default async function AdminPage() {
 
   return (
     <div>
-      <p>Hello {user.name}</p>
       <AdminOverview
         user={user}
         userList={userList}
