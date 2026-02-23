@@ -22,26 +22,21 @@ export default function AdminOverview({
 
   return (
     <div>
-      <p>Hello {user.name}</p>
+      <div className="flex w-full content-center">
+        <h1 className="text-6xl p-3 text-center">Hello</h1>
+        <p className="text-2xl content-center">{user.name}</p>
+      </div>
       <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList variant="line">
+        <TabsList variant="default">
           <TabsTrigger
             value="articles"
-            style={
-              activeTab === "articles"
-                ? { color: "var(--primary-foreground)" }
-                : {}
-            }
+            style={activeTab === "articles" ? { color: "var(--primary)" } : {}}
           >
             Articles
           </TabsTrigger>
           <TabsTrigger
             value="users"
-            style={
-              activeTab === "users"
-                ? { color: "var(--primary-foreground)" }
-                : {}
-            }
+            style={activeTab === "users" ? { color: "var(--primary)" } : {}}
           >
             Users
           </TabsTrigger>
