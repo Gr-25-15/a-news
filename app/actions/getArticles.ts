@@ -33,6 +33,7 @@ export async function getArticleById(id: string) {
     include: {
       Category: true,
       Author: true,
+      Editor: true,
     },
   });
 
@@ -48,21 +49,36 @@ export async function getArticleById(id: string) {
 }
 
 export type articleFull = Awaited<ReturnType<typeof getArticleById>>;
+export type articleList = Awaited<ReturnType<typeof getAllArticles>>;
+
+export async function getAllArticles() {
+  const articles = await prisma.article.findMany({
+    include: {
+      Category: true,
+      Author: true,
+      Editor: true,
+    },
+  });
+  return articles;
+}
 
 export async function getArticlesWithContent(categoryName?: string) {
   const articles = await prisma.article.findMany({
-    where: categoryName && categoryName !== "All"
-      ? {
-          Category: {
-            name: {
-              equals: categoryName,
-              mode: "insensitive",
+    where:
+      categoryName && categoryName !== "All"
+        ? {
+            Category: {
+              name: {
+                equals: categoryName,
+                mode: "insensitive",
+              },
             },
-          },
-        }
-      : {},
+          }
+        : {},
     include: {
       Category: true,
+      Author: true,
+      Editor: true,
     },
   });
 

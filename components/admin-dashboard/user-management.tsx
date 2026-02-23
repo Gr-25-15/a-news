@@ -1,6 +1,5 @@
 "use client";
 
-import { UserWithRoles } from "@/types/usertype";
 import {
   Table,
   TableBody,
@@ -12,12 +11,9 @@ import {
 import { setUserRole } from "@/app/actions/manageUsers";
 import { Button } from "../ui/button";
 import { useRouter } from "next/navigation";
+import { userListType } from "@/app/actions/manageUsers";
 
-type UsersTableProps = {
-  userList: UserWithRoles[];
-};
-
-export function UserManagementTable({ userList }: UsersTableProps) {
+export function UserManagementTable({ userList }: { userList: userListType }) {
   const router = useRouter();
 
   async function handleRoleChange(

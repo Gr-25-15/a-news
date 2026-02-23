@@ -1,14 +1,9 @@
 "use server";
 
-import { getAllUsers, getUserById } from "@/app/actions/manageUsers";
-import {
-  SignInButton,
-  SignUpButton,
-} from "@/components/admin-dashboard/admin-account-button";
-import { UserManagementTable } from "@/components/admin-dashboard/user-management";
+import { getAllArticles } from "@/app/actions/getArticles";
+import { getAllUsers } from "@/app/actions/manageUsers";
+import AdminOverview from "@/components/admin-dashboard/admin-overview";
 import { auth } from "@/lib/auth";
-
-import { ShieldUser } from "lucide-react";
 import { headers } from "next/headers";
 
 export default async function AdminPage() {
@@ -22,19 +17,16 @@ export default async function AdminPage() {
   if (!user) return <p>User not found.</p>;
 
   const userList = await getAllUsers();
-
-  if (userList.error) {
-    return <p>{userList.error}</p>;
-  }
+  const articleList = await getAllArticles();
 
   return (
-    <>
-      <SignUpButton />
-      <SignInButton />
-
-      <ShieldUser />
+    <div>
       <p>Hello {user.name}</p>
-      <UserManagementTable userList={userList.users} />
-    </>
+      <AdminOverview
+        user={user}
+        userList={userList}
+        articleList={articleList}
+      />
+    </div>
   );
 }

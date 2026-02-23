@@ -1,7 +1,6 @@
 "use server";
 
 import { auth } from "@/lib/auth";
-import { UserWithRoles } from "@/types/usertype";
 import { headers } from "next/headers";
 import prisma from "@/lib/prisma";
 
@@ -19,45 +18,19 @@ export async function getUserById(id: string) {
   });
 }
 
-export async function getAllUsers(): Promise<{
-  users: UserWithRoles[];
-  total: number;
-  error: string | null;
-}> {
+export async function getAllUsers() {
   const session = await auth.api.getSession({
     headers: await headers(),
   });
 
   if (!session || session.user.role !== "admin") {
-    return { users: [], total: 0, error: "Unauthorized" };
+    throw new Error("Unauthorized");
   }
-
-  try {
-    const result = await auth.api.listUsers({
-      headers: await headers(),
-      query: {
-        limit: 100,
-      },
-    });
-
-    const users: UserWithRoles[] = result.users.map((user) => ({
-      id: user.id,
-      name: user.name ?? "",
-      email: user.email,
-      role: user.role ?? "user",
-      createdAt: user.createdAt.toISOString(),
-    }));
-
-    return {
-      users,
-      total: result.total,
-      error: null,
-    };
-  } catch (error) {
-    console.error("Error listing users:", error);
-    return { users: [], total: 0, error: "Failed to fetch users" };
-  }
+  const users = await prisma.user.findMany();
+  return users;
 }
+
+export type userListType = Awaited<ReturnType<typeof getAllUsers>>;
 
 export async function setUserRole(
   userId: string,
