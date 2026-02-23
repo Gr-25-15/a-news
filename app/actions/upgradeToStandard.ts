@@ -20,7 +20,7 @@ export async function upgradeToStandard(): Promise<UpgradeResult> {
     const data = await auth.api.upgradeSubscription({
       headers: await headers(),
       body: {
-        plan: "standard", // the plan name / unique id
+        plan: "premium", // the plan name / unique id
         successUrl,
         cancelUrl,
         disableRedirect: true, // true so you can redirect manually from client
