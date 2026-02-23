@@ -112,14 +112,38 @@ export default function Navigation({
                     <NavigationMenuItem className="ml-4">
                       <NavigationMenuLink asChild>
                         <Button variant={"ghost"} size="sm" asChild>
-                          <Link href={"/auth/sign-in"}>Sign In</Link>
-                        </Button>
-                      </NavigationMenuLink>
-                    </NavigationMenuItem>
-                    <NavigationMenuItem>
-                      <NavigationMenuLink asChild>
-                        <Button size="sm" asChild>
-                          <Link href={"/auth/sign-up"}>Sign Up</Link>
+                          {session.data ? (
+                            <NavigationMenuItem className="ml-4 flex items-center gap-4">
+                              <p className="text-[10px] font-black uppercase tracking-widest whitespace-nowrap opacity-50">
+                                Hi, {session.data.user.name}
+                              </p>
+                              <Link
+                                href={"/auth/sign-out"}
+                                className="text-[11px] font-black uppercase tracking-widest hover:text-orange-500 transition-colors"
+                              >
+                                Sign Out
+                              </Link>
+                            </NavigationMenuItem>
+                          ) : (
+                            <div className="flex items-center gap-6 ml-6">
+                              <NavigationMenuItem>
+                                <Link
+                                  href={"/auth/sign-in"}
+                                  className="text-[11px] font-black uppercase tracking-[0.2em] text-white hover:text-orange-500 transition-colors"
+                                >
+                                  Log In
+                                </Link>
+                              </NavigationMenuItem>
+                              <NavigationMenuItem>
+                                <Link
+                                  href={"/auth/sign-up"}
+                                  className="bg-white text-black px-5 py-2 text-[11px] font-black uppercase tracking-[0.2em] hover:bg-orange-600 hover:text-white transition-all rounded-sm"
+                                >
+                                  Sign Up
+                                </Link>
+                              </NavigationMenuItem>
+                            </div>
+                          )}
                         </Button>
                       </NavigationMenuLink>
                     </NavigationMenuItem>

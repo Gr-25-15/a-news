@@ -1,7 +1,6 @@
-import { config } from "dotenv";
-config();
+import "dotenv/config";
 
-import prisma from "@/lib/prisma";
+import prisma from "../lib/prisma"; // fixed a bit
 import { generateArticle, getLatestNewsTopics } from "@/lib/ai";
 import { parseArticleResponse } from "@/lib/utils";
 import { s3Client, S3_BUCKET } from "@/lib/s3";
