@@ -1,4 +1,5 @@
-// app/actions/upgradeToStandard.ts
+"use server";
+
 import { headers } from "next/headers";
 import { auth } from "@/lib/auth"; // your Better Auth instance
 
@@ -11,7 +12,7 @@ interface UpgradeResult {
  * Server Action to upgrade the current user to the "standard" plan.
  * Returns a Checkout URL if disableRedirect is true.
  */
-export async function upgradeToStandard(): Promise<UpgradeResult> {
+export async function upgradeSubscription(): Promise<UpgradeResult> {
   // These URLs should be pages in your app
   const successUrl = "/";
   const cancelUrl = "/";
@@ -20,7 +21,7 @@ export async function upgradeToStandard(): Promise<UpgradeResult> {
     const data = await auth.api.upgradeSubscription({
       headers: await headers(),
       body: {
-        plan: "premium", // the plan name / unique id
+        plan: "Premium", // the plan name / unique id
         successUrl,
         cancelUrl,
         disableRedirect: true, // true so you can redirect manually from client

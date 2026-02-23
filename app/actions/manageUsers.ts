@@ -44,7 +44,7 @@ export async function getAllUsers(): Promise<{
       id: user.id,
       name: user.name ?? "",
       email: user.email,
-      role: user.role ?? "user",
+      role: (user.role as "admin" | "editor" | "user") ?? "user",
       createdAt: user.createdAt.toISOString(),
     }));
 
