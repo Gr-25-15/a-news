@@ -48,3 +48,10 @@ next-env.d.ts
 
 #content collections
 .content-collections
+
+
+
+.env
+.env.local
+*.env
+clean.env
