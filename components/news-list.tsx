@@ -4,9 +4,14 @@ import { NewsCard } from "./news-card";
 interface NewsListProps {
   articles: Article[];
   category: string | undefined;
+  isSubscribed: boolean;
 }
 
-export default function NewsList({ articles, category }: NewsListProps) {
+export default function NewsList({
+  articles,
+  category,
+  isSubscribed,
+}: NewsListProps) {
   if (!articles) return null;
 
   return (
@@ -21,7 +26,7 @@ export default function NewsList({ articles, category }: NewsListProps) {
             key={article.id}
             title={article.title}
             description={article.description ?? ""}
-            isLocked={article.isSubscriberOnly}
+            isLocked={article.isSubscriberOnly && !isSubscribed}
           />
         ))}
       </div>
