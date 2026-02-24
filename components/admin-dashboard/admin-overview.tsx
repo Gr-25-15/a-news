@@ -30,13 +30,13 @@ export default function AdminOverview({
         <TabsList variant="default">
           <TabsTrigger
             value="articles"
-            style={activeTab === "articles" ? { color: "var(--primary)" } : {}}
+            className="data-[state=active]:text-primary"
           >
             Articles
           </TabsTrigger>
           <TabsTrigger
             value="users"
-            style={activeTab === "users" ? { color: "var(--primary)" } : {}}
+            className="data-[state=active]:text-primary"
           >
             Users
           </TabsTrigger>
