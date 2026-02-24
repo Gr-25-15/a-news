@@ -22,11 +22,13 @@ export default function NewsList({
       <div className="grid grid-cols-1 gap-6 justify-items-center flex-wrap w-full">
         {articles.map((article) => (
           <NewsCard
+            articleThumbnail={article.thumbnailUrl}
             id={article.id}
             key={article.id}
             title={article.title}
             description={article.description ?? ""}
             isLocked={article.isSubscriberOnly && !isSubscribed}
+            isSubscriberOnly={article.isSubscriberOnly}
           />
         ))}
       </div>

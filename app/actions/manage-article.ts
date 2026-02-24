@@ -8,10 +8,6 @@ import { s3Client, S3_BUCKET } from "@/lib/s3";
 import { PutObjectCommand } from "@aws-sdk/client-s3";
 import { randomUUID } from "node:crypto";
 
-export async function getAllArticles() {
-  return await prisma.article.findMany();
-}
-
 export async function createArticle(
   title: string,
   categoryId: string,
@@ -184,4 +180,33 @@ export async function deleteArticle(id: string) {
   } catch (e) {
     return { success: false, error: "Failed to delete article" };
   }
+}
+
+export async function updateArticleStatus(
+  articleId: string,
+  checked: boolean,
+  key: "isPublished" | "isSubscriberOnly",
+) {
+  // Add permission check
+  const { success } = await auth.api.userHasPermission({
+    headers: await headers(),
+    body: {
+      permissions: {
+        article: ["edit"], // Assuming "edit" permission covers status updates
+      },
+    },
+  });
+  if (!success) {
+    throw new Error("unauthorized");
+  }
+
+  await prisma.article.update({
+    where: {
+      id: articleId,
+    },
+    data: {
+      [key]: checked,
+    },
+  });
+  revalidatePath("/"); // Revalidate cache after update
 }
