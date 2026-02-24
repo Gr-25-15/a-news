@@ -29,7 +29,7 @@ import { toast } from "sonner";
 async function handleDeleteArticle(articleId: string) {
   const result = await deleteArticle(articleId);
   if (result.success) {
-    toast("Deletion successful");
+    toast("Obliteration successful");
   } else {
     toast("evil.txt");
   }
