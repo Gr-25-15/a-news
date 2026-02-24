@@ -7,7 +7,7 @@ import type { ReactNode } from "react";
 
 import { authClient } from "@/lib/auth-client";
 import { ThemeProvider } from "next-themes";
-import { Toaster } from "sonner";
+import { Toaster } from "@/components/ui/sonner";
 
 export function Providers({ children }: { children: ReactNode }) {
   const router = useRouter();

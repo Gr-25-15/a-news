@@ -138,7 +138,7 @@ function CardExample() {
         <CardFooter className="gap-2">
           <AlertDialog>
             <AlertDialogTrigger asChild>
-              <Button variant="primary">
+              <Button variant="default">
                 <PlusIcon className="mr-2" />
                 Actions
               </Button>

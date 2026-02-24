@@ -68,6 +68,7 @@ const fileStatusReducer = <TUploadRes, TUploadError>(
     | ({
         type: "update-status";
         id: string;
+        tries?: number;
       } & DropzoneResult<TUploadRes, TUploadError>),
 ): FileStatus<TUploadRes, TUploadError>[] => {
   switch (action.type) {

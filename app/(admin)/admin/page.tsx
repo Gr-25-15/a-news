@@ -10,7 +10,7 @@ export default async function AdminPage() {
   const session = await auth.api.getSession({ headers: await headers() });
 
   if (!session || session.user.role !== "admin") {
-    return { error: "Unauthorized" };
+    return <p>Unauthorized</p>;
   }
 
   const user = session.user;

@@ -98,9 +98,12 @@ export default function Navigation({
                 ))}
                 {session.data ? (
                   <NavigationMenuItem className="ml-4 flex items-center gap-4">
-                    <p className="text-xs whitespace-nowrap">
+                    <Link
+                      href={"/account/settings"}
+                      className="text-xs whitespace-nowrap"
+                    >
                       Hey, {session.data.user.name}
-                    </p>
+                    </Link>
                     <NavigationMenuLink asChild>
                       <Button variant={"ghost"} size="sm" asChild>
                         <Link href={"/auth/sign-out"}>Sign Out</Link>
