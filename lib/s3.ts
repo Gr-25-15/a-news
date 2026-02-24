@@ -30,13 +30,12 @@ export async function getS3Content(key: string): Promise<string> {
     Key: key,
   });
 
-  console.log(command);
-
   try {
     const response = await s3Client.send(command);
     const bodyContents = await response.Body?.transformToString();
     return bodyContents || "";
   } catch (error) {
+    console.log("Error fetching S3 content:", error);
     console.error("Error fetching S3 content");
     return "";
   }
