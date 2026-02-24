@@ -22,9 +22,9 @@ export default function AdminOverview({
 
   return (
     <div>
-      <div className="flex w-full content-center">
+      <div className="flex w-full items-center gap-2">
         <h1 className="text-6xl p-3 text-center">Hello</h1>
-        <p className="text-2xl content-center">{user.name}</p>
+        <p className="text-2xl">{user.name}</p>
       </div>
       <Tabs value={activeTab} onValueChange={setActiveTab}>
         <TabsList variant="default">
