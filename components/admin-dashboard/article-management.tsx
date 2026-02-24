@@ -24,6 +24,16 @@ import {
   deleteArticle,
   updateArticleStatus,
 } from "@/app/actions/manage-article";
+import { toast } from "sonner";
+
+async function handleDeleteArticle(articleId: string) {
+  const result = await deleteArticle(articleId);
+  if (result.success) {
+    toast("Deletion successful");
+  } else {
+    toast("evil.txt");
+  }
+}
 
 export function ArticleManagementTable({
   ArticleList,
@@ -91,7 +101,7 @@ export function ArticleManagementTable({
                   <DropdownMenuSeparator />
                   <DropdownMenuItem
                     variant="destructive"
-                    onClick={async () => await deleteArticle(article.id)}
+                    onClick={async () => await handleDeleteArticle(article.id)}
                   >
                     Delete
                   </DropdownMenuItem>
