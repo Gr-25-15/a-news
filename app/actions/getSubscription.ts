@@ -57,11 +57,5 @@ export async function getActiveSubscription(): Promise<
     (sub) => sub.status === "active" || sub.status === "trialing",
   );
 
-  if (activeSubscription) {
-    console.log("Active Subscription Found:", {
-      activeSubscription,
-    });
-  }
-
   return activeSubscription;
 }

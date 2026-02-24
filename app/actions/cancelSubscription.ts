@@ -14,6 +14,8 @@ export async function cancelSubscription(
   });
 
   if (!session) return { error: "No session found", data: null };
+  if (!subscriptionId)
+    return { error: "No subscription ID provided", data: null };
 
   try {
     const data = await auth.api.cancelSubscription({
